@@ -6,12 +6,12 @@
 param (
     [switch] $Version,
     [switch] $Help,
-    [switch] $Configure,
-    [switch] $InstallDependencies
+    [switch] $SkipConfiguration,
+    [switch] $SkipInstallDependencies
 )
 
 ### ~~~~ METADATA ~~~~ ###
-$version_number = "v0.1.0"
+$version_number = "v0.1.1"
 $script_name = 'dev-tools'
 
 ### ~~~~ CONFIG ~~~~ ###
@@ -28,7 +28,7 @@ $text_info = (Get-Culture).TextInfo
 ### ~~~~ BUILD ~~~~ ###
 try {
     Set-Location '~'
-    if ($InstallDependencies) {
+    if (!$SkipInstallDependencies) {
         Write-Host "~~~ Installing Dependencies ~~~" -ForegroundColor Green
         Write-Host "  - Installing chocolatey..." -ForegroundColor Blue
         Set-ExecutionPolicy Bypass -Scope Process -Force;
@@ -54,7 +54,7 @@ try {
         $null = pyenv global $python_version
         Write-Host "      configured pyenv" -ForegroundColor DarkBlue
     }
-    if ($Configure)
+    if (!$SkipConfiguration)
     {
         Write-Host "~~~ Configuring Machine ~~~" -ForegroundColor Green
         Write-Host "  - Collecting environment variables..." -ForegroundColor Blue
@@ -123,12 +123,12 @@ Parameter flags can be supplied with the command to adjust the script's behaviou
             Description = 'Script version';
         },
         [PSCustomObject]@{ 
-            Flag = "InstallDependencies, -i";
-            Description = "Install development packages on this machine";
+            Flag = "SkipInstallDependencies, -skipi";
+            Description = "Don't Install development packages on this machine";
         },
         [PSCustomObject]@{ 
-            Flag = '-Config, -c';
-            Description = "Configure this machine's environment";
+            Flag = '-SkipConfiguration, -skipc';
+            Description = "Don't configure this machine's environment";
         }
     ) | Format-Table
     
@@ -140,5 +140,5 @@ Parameter flags can be supplied with the command to adjust the script's behaviou
     break
 }
 
-### ~~~~ GARBAGECOLLECTION ~~~~ ###
+### ~~~~ GARBAGE COLLECTION ~~~~ ###
 [System.GC]::Collect()
