@@ -1,3 +1,4 @@
+<!-- / © Copyright 2024 Frankie Homewood <F.Homewood@outlook.com> -->
 # Changelog
 
 All notable changes to this project will be documented in this file.
@@ -6,6 +7,10 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - CHANGELOG.md file to keep track of future changes
+- Numerous additions to the readme:
+  - Most recent realease in title.
+  - PowerShell installation command.
+  - Installation script download button.
 
 ### Changed
 - Configuration for environment now pulls from the environment variable assigned in dev-tools configuration.
