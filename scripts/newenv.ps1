@@ -10,7 +10,7 @@ param (
 )
 
 ### ~~~~ METADATA ~~~~ ###
-$version_number = "v0.2.0"
+$version_number = "v0.2.1"
 $script_name = 'newenv'
 
 ### ~~~~ CONFIG ~~~~ ###
@@ -22,22 +22,25 @@ $last_name = [Environment]::GetEnvironmentVariable("config_last_name", "Machine"
 
 ### ~~~~ SETUP ~~~~ ###
 $env_num = Get-Random -Minimum 10000 -Maximum 99999
-$env_type = "Development"
-$env_dir = $development_dir
+switch ($true) {
+    $Playground {
+        $env_type = "Playground"
+        $env_dir = $playground_dir
+    }
+    Default {
+        $env_type = "Development"
+        $env_dir = $development_dir
+    }
+}
+$env_dir = $env_dir | Resolve-Path
 $is_successful = $false
 $venv_exists = $false
 $error_message = ''
 $init_dir = Get-Location
 $target_dir = "project_$env_num\"
-$env_path = $development_dir + $target_dir
+$env_path = $env_dir + $target_dir
 
-if ($Playground) {
-    $env_type = "Playground"
-    $env_dir = $playground_dir
-    $env_path = $env_dir + $target_dir
-}
-
-function Build{
+function Build {
     Write-Host "~~~ Building $env_type Environment #$env_num ~~~" -ForegroundColor DarkGreen
     Write-Host "  - Building path..." -ForegroundColor Cyan
     $null = New-Item -Path $env_dir -Name $target_dir -ItemType Directory
@@ -104,7 +107,7 @@ function Build{
     }
 }
 
-function Show-Help{
+function Show-Help {
     Write-Host `
     "~~ $script_name ~~
 Command to create a new development environment under a temporary directory.
