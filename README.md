@@ -1,6 +1,6 @@
 <!-- / © Copyright 2024 Frankie Homewood <F.Homewood@outlook.com> -->
 
-# Developer Tools v.0.1.1 [Calm Thought](https://github.com/FHomewood/dev-tools/releases/tag/v0.1.1)
+# Developer Tools v.0.1.1 [_Calm Thought_](https://github.com/FHomewood/dev-tools/releases/tag/v0.1.1)
 
 A dot-files style repository intended to store all windows PowerShell scripts, bash scripts and dotfiles for ease of development and automation of workflow.
 
