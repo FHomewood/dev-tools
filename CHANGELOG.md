@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
   - Most recent realease in title.
   - PowerShell installation command.
   - Installation script download button.
+- Empty DelEnv script.
 
 ### Changed
 - Configuration for environment now pulls from the environment variable assigned in dev-tools configuration.
