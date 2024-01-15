@@ -10,11 +10,8 @@ dev-tools has a dedicated installation script that can be executed in a PowerShe
 #### PowerShell Command
 ```
 Set-ExecutionPolicy Bypass -Scope Process -Force;
-[System.Net.ServicePointManager]::SecurityProtocol = 
-[System.Net.ServicePointManager]::SecurityProtocol -bor 3072;
-Invoke-Expression ((New-Object System.Net.WebClient).DownloadString(
-    'https://raw.githubusercontent.com/FHomewood/dev-tools/main/scripts/dev-tools.ps1'
-))
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072;
+Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/FHomewood/dev-tools/main/scripts/dev-tools.ps1'))
 ```
 In cases where the machine's security policy does not allow adjustments to the SecurityProtocol or ExecutionPolicy then a direct download is available through the most recent release.
 #### Download link
