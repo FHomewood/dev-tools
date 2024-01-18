@@ -67,8 +67,9 @@ function Install-Dependencies {
     Write-Host "  - Initialising python..." -ForegroundColor Cyan
     $null = pyenv update
     $null = pyenv install $python_version
+    Write-Host "      Installed python v$python_version" -ForegroundColor DarkCyan
     $null = pyenv global $python_version
-    Write-Host "      configured pyenv" -ForegroundColor DarkCyan
+    Write-Host "      Configured pyenv global version" -ForegroundColor DarkCyan
 }
 
 function Configure {
