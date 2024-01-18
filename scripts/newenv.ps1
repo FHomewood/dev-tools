@@ -6,19 +6,23 @@
 param (
     [switch] $Version,
     [switch] $Help,
-    [switch] $Playground
+    [switch] $Playground,
+    [switch] $Quick,
+    [string] $EnvName
 )
 
 ### ~~~~ METADATA ~~~~ ###
-$version_number = "v0.2.1"
-$script_name = 'newenv'
+$version_number = "v0.2.3"
+$script_name = 'NewEnv'
 
 ### ~~~~ CONFIG ~~~~ ###
 $python_version = "3.11.5"
 $development_dir = "~\Development\"
 $playground_dir = "~\Playground\"
+$environment_template_dir = "~\.dev-tools\env_templates\NewEnv"
 $first_name = [Environment]::GetEnvironmentVariable("config_first_name", "Machine")
 $last_name = [Environment]::GetEnvironmentVariable("config_last_name", "Machine")
+$contact = [Environment]::GetEnvironmentVariable("config_email", "Machine")
 
 ### ~~~~ SETUP ~~~~ ###
 $env_num = Get-Random -Minimum 10000 -Maximum 99999
@@ -37,43 +41,64 @@ $is_successful = $false
 $venv_exists = $false
 $error_message = ''
 $init_dir = Get-Location
-$target_dir = "project_$env_num\"
-$env_path = $env_dir + $target_dir
+if (!$EnvName) {$EnvName = "project_$env_num"}
+$env_path = "$env_dir/$EnvName"
 
 function Build {
     Write-Host "~~~ Building $env_type Environment #$env_num ~~~" -ForegroundColor DarkGreen
     Write-Host "  - Building path..." -ForegroundColor Cyan
-    $null = New-Item -Path $env_dir -Name $target_dir -ItemType Directory
-    $null = New-Item -Path $env_path -Name "src" -ItemType Directory
-    $null = New-Item -Path $env_path -Name "tests" -ItemType Directory
-    $null = New-Item -Path "$env_path\src" -Name "__init__.py" -ItemType File
-    $null = New-Item -Path "$env_path\src" -Name "__main__.py" -ItemType File
-    $null = New-Item -Path "$env_path\tests" -Name "__init__.py" -ItemType File
-    $null = New-Item -Path $env_path -Name "README.md" -ItemType File
-    
+
+    $null = New-Item -Path $env_dir -Name $EnvName -ItemType Directory
+    $null = Copy-Item "$environment_template_dir/*" $env_path -Recurse
+    Write-Host "      Built environment template" -ForegroundColor DarkCyan
+
+    $placeholders = @(
+        @{Tag = '{{ YEAR }}'       ; Inplace = '2024'},
+        @{Tag = '{{ FIRST_NAME }}' ; Inplace = $first_name},
+        @{Tag = '{{ LAST_NAME }}'  ; Inplace = $last_name},
+        @{Tag = '{{ CONTACT }}'    ; Inplace = $contact},
+        @{Tag = '{{ ENV_NAME }}'   ; Inplace = "project_$env_num"}
+    )
+    Get-ChildItem -Recurse $env_path | ForEach-Object { $_path = $_
+        $placeholders | ForEach-Object { $_placeholder = $_
+            if ("$_path" -contains $_placeholder.Tag){
+                Rename-Item -Path $_path.FullName -NewName "$_path".Replace($_placeholder.Tag, $_placeholder.Inplace)
+            }
+            if (Test-Path -Path $_path.FullName -PathType Leaf) {
+                if ($null -ne (Get-Content $_path.FullName)) {
+                        (Get-Content $_path.FullName).Replace($_placeholder.Tag, $_placeholder.Inplace) | Set-Content $_path.FullName
+    }}}}
+    Write-Host "      Replaced placeholder values" -ForegroundColor DarkCyan
+
     Write-Host "  - Finding path..." -ForegroundColor Cyan
     $null = Set-Location $env_path
     $abs_path = Get-Location
-    
+
     try {
+        if ($Quick) {$is_successful = $true;break}
+
         Write-Host "  - Initializing git repository..." -ForegroundColor Cyan
         $null = git init
         
         Write-Host "  - Building Python environment..." -ForegroundColor Cyan
+
         $null = pyenv exec python -m virtualenv .venv
         $venv_exists = $true
         Write-Host "      Created .\.venv\" -ForegroundColor DarkCyan
+
         $null = . .\.venv\Scripts\activate
         $null = pip install --upgrade pip
         Write-Host "      Upgraded pip" -ForegroundColor DarkCyan
+
         $null = pip install poetry
         Write-Host "      Installed poetry" -ForegroundColor DarkCyan
+
         $null = poetry init -n `
-                --name src `
+                --name "$EnvName" `
                 --python $python_version `
-                --author "$first_name $last_name <$first_name.$last_name@data-vault.com>" `
+                --author "$first_name $last_name <$contact>" `
                 --description `
-                "Project ID #${env_num}: Authored by $first_name $last_name in association with Business Thinking Ltd. (dba Datavault)" `
+                "Project ID #${env_num}: Authored by $first_name $last_name" `
     
         Write-Host "      Initialized project" -ForegroundColor DarkCyan
         $null = poetry install
@@ -86,14 +111,16 @@ function Build {
     finally {
         Write-Host "  - Cleaning up..." -ForegroundColor Cyan
         if ($venv_exists){
-            Write-Host "      Deactivating python virtual environment" -ForegroundColor Cyan
+            Write-Host "      Deactivating python virtual environment" -ForegroundColor DarkCyan
             $null = deactivate
         }
-        Write-Host "      returning to init_dir" -ForegroundColor Cyan
+        Write-Host "      Returning to init_dir" -ForegroundColor DarkCyan
         $null = Set-Location $init_dir
     
         if ($is_successful) {
-            $null = code $abs_path
+            Write-Host "  - Opening new environment" -ForegroundColor Cyan
+            Write-Host "$env_path\$EnvName\__main__.py"
+            $null = code $abs_path "$env_path\$EnvName\__main__.py"
             Write-Host "Done!" -ForegroundColor Green
         }
         else {
@@ -125,11 +152,15 @@ Parameter flags can be supplied with the command to adjust the script's behaviou
         [PSCustomObject]@{ 
             Flag = '-Playground, -p';
             Description = "Create the environment under the '$playground_dir' directory";
+        },
+        [PSCustomObject]@{ 
+            Flag = '-Quick, -q';
+            Description = "Create environment without installation";
         }
     ) | Format-Table
     
     Write-Output $table
-    Write-Host "In the script itself there are a series of config options that can be changed if they are not aligned with the system"
+    Write-Host "In the script itself there are a series of config options that can be changed if they are not aligned with the system."
     $table = @(
         [PSCustomObject]@{
             Config = '$python_version';
@@ -148,6 +179,12 @@ Parameter flags can be supplied with the command to adjust the script's behaviou
             Description = 'Directory for playground environments';
             Value = "$playground_dir";
             Default = '~\Playground\';
+        },
+        [PSCustomObject]@{
+            Config = '$environment_template_dir';
+            Description = 'Directory for template directory';
+            Value = "$environment_template_dir";
+            Default = '~\.dev-tools\env_templates\NewEnv';
         }
     ) | Format-Table
     Write-Output $table

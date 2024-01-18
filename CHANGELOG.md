@@ -12,11 +12,18 @@ All notable changes to this project will be documented in this file.
 - CHANGELOG.md file to keep track of future changes.
 - ReadMe - Shows most recent release in title.
 - ReadMe - Includes the PowerShell installation command and script download button.
+- NewEnv - Adds template directory to directly copy across to new environment.
+- NewEnv - Adds experimental EnvName flag for named environments.
+- NewEnv files are templated with {{ VARIABLE }} notation. Where variable is one of (YEAR, FIRST_NAME, LAST_NAME, CONTACT, ENV_NAME).
+- NewEnv filenames are also templatable.
+
 
 ### Changed
 - Configuration for environment now pulls from the environment variable assigned in dev-tools configuration.
 - Scripts now live in a repository subfolder called './scripts/'.
 - Info Flags in newenv now use separate PowerShell functions with switch cases.
+- NewEnv environment can now be non-empty files.
+
 
 ### Fixed
 - Added extra condition so newenv doesn't break before returning to initial directory on a failed run.
@@ -29,6 +36,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Inverted "InstallDependencies" flag to be "SkipInstallDependencies".
 - Inverted "Configure" flag to be "SkipConfiguration.
+
 
 ### Fixed
 - Installation script no longer skips the installation and configuration of the machine by default.
