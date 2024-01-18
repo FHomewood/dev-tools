@@ -1,5 +1,5 @@
 ### © Copyright 2024 Frankie Homewood <F.Homewood@outlook.com>
-# Command to create a new development environment under a temporary directory.
+# A command to create a new development environment under a temporary directory.
 
 ### ~~~~ PARAMETERS ~~~~ ###
 [CmdletBinding()]
@@ -110,7 +110,7 @@ function Build {
 function Show-Help {
     Write-Host `
     "~~ $script_name ~~
-Command to create a new development environment under a temporary directory.
+A command to create a new development environment under a temporary directory.
 
 Parameter flags can be supplied with the command to adjust the script's behaviour."
     $table = @(

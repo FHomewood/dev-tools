@@ -22,6 +22,7 @@ All notable changes to this project will be documented in this file.
 - Added extra condition so newenv doesn't break before returning to initial directory on a failed run.
 - Removed incorrect use of $$ causing minor bugs.
 - Removed placeholder descriptions for script options.
+- Made text colour readable on default PowerShell window colours.
 
 
 ## [0.1.1] - 2024-01-11
