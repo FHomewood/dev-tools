@@ -1,4 +1,4 @@
-### © Copyright YYYY NAME <CONTACT>
+### © Copyright {{ YEAR }} {{ FIRST_NAME }} {{ LAST_NAME }} <{{ CONTACT }}>
 
 if __name__ == "__main__":
 
