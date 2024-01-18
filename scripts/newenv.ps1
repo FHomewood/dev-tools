@@ -7,7 +7,8 @@ param (
     [switch] $Version,
     [switch] $Help,
     [switch] $Playground,
-    [switch] $Quick
+    [switch] $Quick,
+    [string] $EnvName
 )
 
 ### ~~~~ METADATA ~~~~ ###
@@ -40,34 +41,35 @@ $is_successful = $false
 $venv_exists = $false
 $error_message = ''
 $init_dir = Get-Location
-$target_dir = "project_$env_num\"
-$env_path = "$env_dir$target_dir"
+if (!$EnvName) {$EnvName = "project_$env_num"}
+$env_path = "$env_dir/$EnvName"
 
 function Build {
     Write-Host "~~~ Building $env_type Environment #$env_num ~~~" -ForegroundColor DarkGreen
     Write-Host "  - Building path..." -ForegroundColor Cyan
 
-    $null = New-Item -Path $env_dir -Name $target_dir -ItemType Directory
+    $null = New-Item -Path $env_dir -Name $EnvName -ItemType Directory
     $null = Copy-Item "$environment_template_dir/*" $env_path -Recurse
     Write-Host "      Built environment template" -ForegroundColor DarkCyan
 
-    Get-ChildItem -Recurse $env_path | ForEach-Object {
-        if (Test-Path -Path $_.FullName -PathType Leaf) {
-            if ($null -ne (Get-Content $_.FullName)) {
-                Write-Host $_.FullName
-                (Get-Content $_.FullName).Replace('{{ YEAR }}', '2024') | Set-Content $_.FullName
-                (Get-Content $_.FullName).Replace('{{ FIRST_NAME }}', $first_name) | Set-Content $_.FullName
-                (Get-Content $_.FullName).Replace('{{ LAST_NAME }}', $last_name) | Set-Content $_.FullName
-                (Get-Content $_.FullName).Replace('{{ CONTACT }}', $contact) | Set-Content $_.FullName
-                (Get-Content $_.FullName).Replace('{{ ENV_NAME }}', "project_$env_num") | Set-Content $_.FullName
+    $placeholders = @(
+        @{Tag = '{{ YEAR }}'       ; Inplace = '2024'},
+        @{Tag = '{{ FIRST_NAME }}' ; Inplace = $first_name},
+        @{Tag = '{{ LAST_NAME }}'  ; Inplace = $last_name},
+        @{Tag = '{{ CONTACT }}'    ; Inplace = $contact},
+        @{Tag = '{{ ENV_NAME }}'   ; Inplace = "project_$env_num"}
+    )
+    Get-ChildItem -Recurse $env_path | ForEach-Object { $_path = $_
+        $placeholders | ForEach-Object { $_placeholder = $_
+            if ("$_path" -contains $_placeholder.Tag){
+                Rename-Item -Path $_path.FullName -NewName "$_path".Replace($_placeholder.Tag, $_placeholder.Inplace)
             }
-        }
-    }
+            if (Test-Path -Path $_path.FullName -PathType Leaf) {
+                if ($null -ne (Get-Content $_path.FullName)) {
+                        (Get-Content $_path.FullName).Replace($_placeholder.Tag, $_placeholder.Inplace) | Set-Content $_path.FullName
+    }}}}
     Write-Host "      Replaced placeholder values" -ForegroundColor DarkCyan
 
-
-
-    
     Write-Host "  - Finding path..." -ForegroundColor Cyan
     $null = Set-Location $env_path
     $abs_path = Get-Location
@@ -79,20 +81,24 @@ function Build {
         $null = git init
         
         Write-Host "  - Building Python environment..." -ForegroundColor Cyan
+
         $null = pyenv exec python -m virtualenv .venv
         $venv_exists = $true
         Write-Host "      Created .\.venv\" -ForegroundColor DarkCyan
+
         $null = . .\.venv\Scripts\activate
         $null = pip install --upgrade pip
         Write-Host "      Upgraded pip" -ForegroundColor DarkCyan
+
         $null = pip install poetry
         Write-Host "      Installed poetry" -ForegroundColor DarkCyan
+
         $null = poetry init -n `
-                --name src `
+                --name "$EnvName" `
                 --python $python_version `
-                --author "$first_name $last_name <$first_name.$last_name@data-vault.com>" `
+                --author "$first_name $last_name <$contact>" `
                 --description `
-                "Project ID #${env_num}: Authored by $first_name $last_name in association with Business Thinking Ltd. (dba Datavault)" `
+                "Project ID #${env_num}: Authored by $first_name $last_name" `
     
         Write-Host "      Initialized project" -ForegroundColor DarkCyan
         $null = poetry install
@@ -105,14 +111,16 @@ function Build {
     finally {
         Write-Host "  - Cleaning up..." -ForegroundColor Cyan
         if ($venv_exists){
-            Write-Host "      Deactivating python virtual environment" -ForegroundColor Cyan
+            Write-Host "      Deactivating python virtual environment" -ForegroundColor DarkCyan
             $null = deactivate
         }
-        Write-Host "      Returning to init_dir" -ForegroundColor Cyan
+        Write-Host "      Returning to init_dir" -ForegroundColor DarkCyan
         $null = Set-Location $init_dir
     
         if ($is_successful) {
-            $null = code $abs_path
+            Write-Host "  - Opening new environment" -ForegroundColor Cyan
+            Write-Host "$env_path\$EnvName\__main__.py"
+            $null = code $abs_path "$env_path\$EnvName\__main__.py"
             Write-Host "Done!" -ForegroundColor Green
         }
         else {
