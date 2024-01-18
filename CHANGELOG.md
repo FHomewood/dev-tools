@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 - CHANGELOG.md file to keep track of future changes.
 - ReadMe - Shows most recent release in title.
 - ReadMe - Includes the PowerShell installation command and script download button.
+- NewEnv - Adds template directory to directly copy across to new environment.
 
 ### Changed
 - Configuration for environment now pulls from the environment variable assigned in dev-tools configuration.
