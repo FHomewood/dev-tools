@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Meeting - A command to create templated meeting notes.
 - Meeting - Keeping in Touch template file.
+- Meeting - Select from available team members.
 
 
 ## [0.1.2] - 2024-01-18

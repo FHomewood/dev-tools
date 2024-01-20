@@ -10,11 +10,10 @@ param (
 )
 
 ### ~~~~ METADATA ~~~~ ###
-$version_number = "v0.1.0"
+$version_number = "v0.1.1"
 $script_name = 'Meeting'
 
 ### ~~~~ CONFIG ~~~~ ###
-$python_version = "3.11.5"
 $meeting_dir = "~\Documents\Notes\Meeting Notes\"
 $kit_dir = "~\Documents\Notes\Meeting Notes\Keeping in Touch\"
 $devtools_dir = "~\.dev-tools\"
@@ -22,12 +21,40 @@ $devtools_dir = "~\.dev-tools\"
 ### ~~~~ SETUP ~~~~ ###
 $is_successful = $false
 $error_message = ''
-$init_dir = Get-Location
+if ($KIT){
+    if (!($kit_dir | Test-Path)){
+        $null = New-Item -Path $kit_dir -ItemType Directory
+    }
+}
 
 function Build {
     try {
         Write-Host "~~~ Loading Meeting Notes ~~~" -ForegroundColor DarkGreen
 
+        switch ($true){
+            $KIT {
+                $team_members = Get-ChildItem $kit_dir
+    
+                Write-Host "Team Members" -ForegroundColor Yellow
+                for ($i = 0; $i -lt $team_members.Length; $i++) {
+                    Write-Host "[$i] - $($team_members[$i])" -ForegroundColor Yellow
+                }
+                Write-Host "[n] - New Team Member" -ForegroundColor Yellow
+                Write-Host "Whose KIT is being recorded? - " -ForegroundColor Yellow -NoNewline
+                $team_member_id = Read-Host
+                if ($team_member_id -eq "n") { $team_member = "New Team Member" }
+                elseif ($team_member_id -lt $team_members.Length) { $team_member = $team_members[$team_member_id] }
+                else { Write-Host "Could not find team member" -ForegroundColor Red; break }
+                
+                Write-Host -ForegroundColor Magenta "$team_member_id`: $team_member"
+            }
+            Default {
+
+            }
+        }
+        
+        if ($team_member_id -ge $team_members.Length -and $team_member_id -ne "n") {break}
+        
         Write-Host "  - Building notes template..." -ForegroundColor Cyan
         $null = Copy-Item "$environment_template_dir/*" $env_path -Recurse
 
@@ -57,7 +84,7 @@ function Build {
     finally {
         if ($is_successful) {
             Write-Host "  - Opening notes" -ForegroundColor Cyan
-            $null = code ##NOTE
+            # $null = code ##NOTE
             Write-Host "Done!" -ForegroundColor Green
         }
         else {
@@ -99,7 +126,7 @@ Parameter flags can be supplied with the command to adjust the script's behaviou
             Config = '$meeting_dir';
             Description = 'Directory for development environments';
             Value = "$meeting_dir";
-            Default = '~\Development\';
+            Default = '~\Documents\Notes\Meeting Notes\';
         },
         [PSCustomObject]@{
             Config = '$kit_dir';
