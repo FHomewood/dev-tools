@@ -4,6 +4,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+### Added
+- Meeting - A command to create templated meeting notes.
 
 
 ## [0.1.2] - 2024-01-18
