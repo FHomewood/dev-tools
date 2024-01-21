@@ -17,10 +17,14 @@ $script_name = 'Meeting'
 $meeting_dir = "~\Documents\Notes\Meeting Notes\"
 $kit_dir = "~\Documents\Notes\Meeting Notes\Keeping in Touch\"
 $devtools_dir = "~\.dev-tools\"
+$temp_dir = $devtools_dir + ".temp\"
+Remove-Item -Recurse $temp_dir
+$null = New-Item -Path $temp_dir -ItemType Directory
 
 ### ~~~~ SETUP ~~~~ ###
 $is_successful = $false
 $error_message = ''
+$date = Get-Date
 if ($KIT){
     if (!($kit_dir | Test-Path)){
         $null = New-Item -Path $kit_dir -ItemType Directory
@@ -30,52 +34,74 @@ if ($KIT){
 function Build {
     try {
         Write-Host "~~~ Loading Meeting Notes ~~~" -ForegroundColor DarkGreen
+        $placeholders = [System.Collections.ArrayList]@()
+        
+        $placeholders = @()
+        $placeholders += @{ Tag = '{{ SHORT DATE }}'; Inplace = "$($date.ToString("yyyy-MM-dd"))"; }
+        $placeholders += @{ Tag = '{{ LONG DATE }}'; Inplace = "$($date.ToString("dddd, d MMM yyyy"))"; }
 
         switch ($true){
             $KIT {
                 $team_members = Get-ChildItem $kit_dir
     
-                Write-Host "Team Members" -ForegroundColor Yellow
+                Write-Host "Team Members:" -ForegroundColor Yellow
                 for ($i = 0; $i -lt $team_members.Length; $i++) {
                     Write-Host "[$i] - $($team_members[$i])" -ForegroundColor Yellow
                 }
-                Write-Host "[n] - New Team Member" -ForegroundColor Yellow
+                Write-Host "[N] + New Team Member" -ForegroundColor Yellow
                 Write-Host "Whose KIT is being recorded? - " -ForegroundColor Yellow -NoNewline
                 $team_member_id = Read-Host
                 if ($team_member_id -eq "n") { $team_member = "New Team Member" }
                 elseif ($team_member_id -lt $team_members.Length) { $team_member = $team_members[$team_member_id] }
                 else { Write-Host "Could not find team member" -ForegroundColor Red; break }
-                
+                $placeholders += @{ Tag = '{{ TEAM MEMBER }}'; Inplace = "$team_member"; }
                 Write-Host -ForegroundColor Magenta "$team_member_id`: $team_member"
+        
+                Write-Host "  - Building notes template..." -ForegroundColor Cyan
+                $null = Copy-Item "$devtools_dir/env_templates/kit_note/*" $temp_dir -Recurse
+        
+                Write-Host "  - Replacing placeholder filenames..." -ForegroundColor Cyan
+                Get-ChildItem -Recurse "$temp_dir/*" | ForEach-Object { $_path = $_
+                    $placeholders | ForEach-Object { $_placeholder = $_
+                        if ($_path -match $_placeholder.Tag){
+                            Rename-Item -Path $_path.FullName -NewName "$_path".Replace($_placeholder.Tag, $_placeholder.Inplace)
+                }}}
+                
+                Write-Host "  - Getting Last we spoke..." -ForegroundColor Cyan
+                $previous_kits =Get-ChildItem "$kit_dir/$team_member" | Sort-Object
+                $most_recent_kit = $previous_kits[0]
+                $lws = (Get-Content $most_recent_kit.FullName) -split '### Last We Spoke'
+
+
+                # "### Check-in\n((?:.*\n)*)\n## Goals\n((?:.*\n)*)\n## Actions\n(?:(?:.*\n)*)\n### New Actions\n((?:.*\n*)*)"
+                $regex = "(?g)#+ (?<title>.+)"
+                
+                $match =  Get-Content -Path $most_recent_kit.FullName `
+                | Out-String `
+                | Select-String -Pattern $regex 
+
+                Write-Host "Match"
+                Write-Host $match
+                Write-Host -ForegroundColor Magenta "Match.Matches"
+                
+                Write-Host -ForegroundColor Magenta "0:" $match.title
+
+
+
+                Write-Host "  - Populating previous info..." -ForegroundColor Cyan
+                Get-ChildItem -Recurse "$temp_dir/*" | ForEach-Object { $_path = $_
+                    $placeholders | ForEach-Object { $_placeholder = $_
+                        if (Test-Path -Path $_path.FullName -PathType Leaf) {
+                            if ($null -ne (Get-Content $_path.FullName)) {
+                                    (Get-Content $_path.FullName).Replace($_placeholder.Tag, $_placeholder.Inplace) | Set-Content $_path.FullName
+                }}}}
+
             }
             Default {
 
             }
         }
-        
         if ($team_member_id -ge $team_members.Length -and $team_member_id -ne "n") {break}
-        
-        Write-Host "  - Building notes template..." -ForegroundColor Cyan
-        $null = Copy-Item "$environment_template_dir/*" $env_path -Recurse
-
-        Write-Host "  - Replacing placeholders..." -ForegroundColor Cyan
-        $placeholders = @(
-            @{Tag = '{{ YEAR }}'       ; Inplace = '2024'},
-            @{Tag = '{{ FIRST_NAME }}' ; Inplace = $first_name},
-            @{Tag = '{{ LAST_NAME }}'  ; Inplace = $last_name},
-            @{Tag = '{{ CONTACT }}'    ; Inplace = $contact},
-            @{Tag = '{{ ENV_NAME }}'   ; Inplace = "project_$env_num"}
-        )
-        Get-ChildItem -Recurse $env_path | ForEach-Object { $_path = $_
-            $placeholders | ForEach-Object { $_placeholder = $_
-                if ("$_path" -contains $_placeholder.Tag){
-                    Rename-Item -Path $_path.FullName -NewName "$_path".Replace($_placeholder.Tag, $_placeholder.Inplace)
-                }
-                if (Test-Path -Path $_path.FullName -PathType Leaf) {
-                    if ($null -ne (Get-Content $_path.FullName)) {
-                            (Get-Content $_path.FullName).Replace($_placeholder.Tag, $_placeholder.Inplace) | Set-Content $_path.FullName
-        }}}}
-        
         $is_successful = $true
     }
     catch {
