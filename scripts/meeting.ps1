@@ -15,7 +15,7 @@ $script_name = 'Meeting'
 
 ### ~~~~ CONFIG ~~~~ ###
 $meeting_dir = "~\Documents\Notes\Meeting Notes\"
-$kit_dir = "~\Documents\Notes\Meeting Notes\Keeping in Touch\"
+$kit_dir = "B:\Documents\Notes\Meeting Notes\Keeping in Touch\"
 $devtools_dir = "~\.dev-tools\"
 $temp_dir = $devtools_dir + ".temp\"
 Remove-Item -Recurse $temp_dir
@@ -50,7 +50,7 @@ function Build {
                 }
                 Write-Host "[N] + New Team Member" -ForegroundColor Yellow
                 Write-Host "Whose KIT is being recorded? - " -ForegroundColor Yellow -NoNewline
-                $team_member_id = Read-Host
+                $team_member_id = 0 # Read-Host
                 if ($team_member_id -eq "n") { $team_member = "New Team Member" }
                 elseif ($team_member_id -lt $team_members.Length) { $team_member = $team_members[$team_member_id] }
                 else { Write-Host "Could not find team member" -ForegroundColor Red; break }
@@ -68,25 +68,18 @@ function Build {
                 }}}
                 
                 Write-Host "  - Getting Last we spoke..." -ForegroundColor Cyan
-                $previous_kits =Get-ChildItem "$kit_dir/$team_member" | Sort-Object
-                $most_recent_kit = $previous_kits[0]
-                $lws = (Get-Content $most_recent_kit.FullName) -split '### Last We Spoke'
+                $most_recent_kit = (Get-ChildItem "$kit_dir/$team_member" | Sort-Object)[0]
 
 
-                # "### Check-in\n((?:.*\n)*)\n## Goals\n((?:.*\n)*)\n## Actions\n(?:(?:.*\n)*)\n### New Actions\n((?:.*\n*)*)"
-                $regex = "(?g)#+ (?<title>.+)"
-                
-                $match =  Get-Content -Path $most_recent_kit.FullName `
-                | Out-String `
-                | Select-String -Pattern $regex 
-
-                Write-Host "Match"
-                Write-Host $match
-                Write-Host -ForegroundColor Magenta "Match.Matches"
-                
-                Write-Host -ForegroundColor Magenta "0:" $match.title
 
 
+                $regex = "### Check-in`n((?:.*`n)*)`n## Goals`n((?:.*`n)*)`n## Actions`n(?:(?:.*`n)*)`n### New Actions`n((?:.*`n*)*)"
+                $data =  [string]::Join("`n", (Get-Content  -Path $most_recent_kit.FullName))
+                $match = $data | Select-String -Pattern $regex
+
+                $placeholders += @{ Tag = '{{ LAST WE SPOKE }}'; Inplace = $match.Matches[0].Groups[1].Value.Trim(); }
+                $placeholders += @{ Tag = '{{ GOALS }}'; Inplace = $match.Matches[0].Groups[2].Value.Trim(); }
+                $placeholders += @{ Tag = '{{ PROPOSED ACTIONS }}'; Inplace = $match.Matches[0].Groups[3].Value.Trim(); }
 
                 Write-Host "  - Populating previous info..." -ForegroundColor Cyan
                 Get-ChildItem -Recurse "$temp_dir/*" | ForEach-Object { $_path = $_
