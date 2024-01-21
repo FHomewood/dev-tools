@@ -6,7 +6,8 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 ### Added
 - Meeting - A command to create templated meeting notes.
-- Meeting - Keeping in Touch template file.
+- Meeting - KIT (Keeping in Touch) template file.
+- Meeting - KIT notes track information from previous meeting.
 - Meeting - Select from available team members.
 
 

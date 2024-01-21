@@ -10,90 +10,107 @@ param (
 )
 
 ### ~~~~ METADATA ~~~~ ###
-$version_number = "v0.1.1"
+$version_number = "v0.1.2"
 $script_name = 'Meeting'
 
 ### ~~~~ CONFIG ~~~~ ###
 $meeting_dir = "~\Documents\Notes\Meeting Notes\"
-$kit_dir = "B:\Documents\Notes\Meeting Notes\Keeping in Touch\"
+$kit_dir = "~\Documents\Notes\Meeting Notes\Keeping in Touch\"
 $devtools_dir = "~\.dev-tools\"
 $temp_dir = $devtools_dir + ".temp\"
-Remove-Item -Recurse $temp_dir
-$null = New-Item -Path $temp_dir -ItemType Directory
 
 ### ~~~~ SETUP ~~~~ ###
 $is_successful = $false
 $error_message = ''
 $date = Get-Date
-if ($KIT){
-    if (!($kit_dir | Test-Path)){
+$null = Remove-Item -Recurse $temp_dir
+$null = New-Item -Path $temp_dir -ItemType Directory
+if ($KIT -and !($kit_dir | Test-Path)){
         $null = New-Item -Path $kit_dir -ItemType Directory
+}
+
+function New-Meeting {
+    try {
+
+        # <meeting logic>
+
+        $is_successful = $true
+    }
+    catch {
+        $error_message = $Error[0].Exception.Message
+    }
+    finally {
+        Remove-Item -Recurse $temp_dir
+        if ($is_successful) {
+            Write-Host "  - Opening notes" -ForegroundColor Cyan
+            # Removed VSCode process until note generated
+            # $null = code 
+            Write-Host "Done!" -ForegroundColor Green
+        }
+        else {
+            Write-Host "  - Restoring..." -ForegroundColor Cyan
+            if (!$error_message) { 
+                $error_message = "An unknown error occurred"
+            }
+            Write-Warning -Message "$error_message"
+        }
     }
 }
 
-function Build {
+function New-KIT {
     try {
         Write-Host "~~~ Loading Meeting Notes ~~~" -ForegroundColor DarkGreen
-        $placeholders = [System.Collections.ArrayList]@()
         
         $placeholders = @()
         $placeholders += @{ Tag = '{{ SHORT DATE }}'; Inplace = "$($date.ToString("yyyy-MM-dd"))"; }
         $placeholders += @{ Tag = '{{ LONG DATE }}'; Inplace = "$($date.ToString("dddd, d MMM yyyy"))"; }
 
-        switch ($true){
-            $KIT {
-                $team_members = Get-ChildItem $kit_dir
-    
-                Write-Host "Team Members:" -ForegroundColor Yellow
-                for ($i = 0; $i -lt $team_members.Length; $i++) {
-                    Write-Host "[$i] - $($team_members[$i])" -ForegroundColor Yellow
-                }
-                Write-Host "[N] + New Team Member" -ForegroundColor Yellow
-                Write-Host "Whose KIT is being recorded? - " -ForegroundColor Yellow -NoNewline
-                $team_member_id = 0 # Read-Host
-                if ($team_member_id -eq "n") { $team_member = "New Team Member" }
-                elseif ($team_member_id -lt $team_members.Length) { $team_member = $team_members[$team_member_id] }
-                else { Write-Host "Could not find team member" -ForegroundColor Red; break }
-                $placeholders += @{ Tag = '{{ TEAM MEMBER }}'; Inplace = "$team_member"; }
-                Write-Host -ForegroundColor Magenta "$team_member_id`: $team_member"
-        
-                Write-Host "  - Building notes template..." -ForegroundColor Cyan
-                $null = Copy-Item "$devtools_dir/env_templates/kit_note/*" $temp_dir -Recurse
-        
-                Write-Host "  - Replacing placeholder filenames..." -ForegroundColor Cyan
-                Get-ChildItem -Recurse "$temp_dir/*" | ForEach-Object { $_path = $_
-                    $placeholders | ForEach-Object { $_placeholder = $_
-                        if ($_path -match $_placeholder.Tag){
-                            Rename-Item -Path $_path.FullName -NewName "$_path".Replace($_placeholder.Tag, $_placeholder.Inplace)
-                }}}
-                
-                Write-Host "  - Getting Last we spoke..." -ForegroundColor Cyan
-                $most_recent_kit = (Get-ChildItem "$kit_dir/$team_member" | Sort-Object)[0]
+        $team_members = Get-ChildItem $kit_dir
 
-
-
-
-                $regex = "### Check-in`n((?:.*`n)*)`n## Goals`n((?:.*`n)*)`n## Actions`n(?:(?:.*`n)*)`n### New Actions`n((?:.*`n*)*)"
-                $data =  [string]::Join("`n", (Get-Content  -Path $most_recent_kit.FullName))
-                $match = $data | Select-String -Pattern $regex
-
-                $placeholders += @{ Tag = '{{ LAST WE SPOKE }}'; Inplace = $match.Matches[0].Groups[1].Value.Trim(); }
-                $placeholders += @{ Tag = '{{ GOALS }}'; Inplace = $match.Matches[0].Groups[2].Value.Trim(); }
-                $placeholders += @{ Tag = '{{ PROPOSED ACTIONS }}'; Inplace = $match.Matches[0].Groups[3].Value.Trim(); }
-
-                Write-Host "  - Populating previous info..." -ForegroundColor Cyan
-                Get-ChildItem -Recurse "$temp_dir/*" | ForEach-Object { $_path = $_
-                    $placeholders | ForEach-Object { $_placeholder = $_
-                        if (Test-Path -Path $_path.FullName -PathType Leaf) {
-                            if ($null -ne (Get-Content $_path.FullName)) {
-                                    (Get-Content $_path.FullName).Replace($_placeholder.Tag, $_placeholder.Inplace) | Set-Content $_path.FullName
-                }}}}
-
-            }
-            Default {
-
-            }
+        Write-Host "Team Members:" -ForegroundColor Yellow
+        for ($i = 0; $i -lt $team_members.Length; $i++) {
+            Write-Host "[$i] - $($team_members[$i])" -ForegroundColor Yellow
         }
+        Write-Host "[N] + New Team Member" -ForegroundColor Yellow
+        Write-Host "Whose KIT is being recorded? - " -ForegroundColor Yellow -NoNewline
+        $team_member_id = 0 # Read-Host
+        if ($team_member_id -eq "n") { $team_member = New-TeamMember }
+        elseif ($team_member_id -lt $team_members.Length) { $team_member = $team_members[$team_member_id] }
+        else { Write-Host "Could not find team member" -ForegroundColor Red; break }
+        $placeholders += @{ Tag = '{{ TEAM MEMBER }}'; Inplace = "$team_member"; }
+        Write-Host -ForegroundColor Magenta "$team_member_id`: $team_member"
+
+        Write-Host "  - Building notes template..." -ForegroundColor Cyan
+        $null = Copy-Item "$devtools_dir/env_templates/kit_note/*" $temp_dir -Recurse
+
+        Write-Host "  - Replacing placeholder filenames..." -ForegroundColor Cyan
+        Get-ChildItem -Recurse "$temp_dir/*" | ForEach-Object { $_path = $_
+            $placeholders | ForEach-Object { $_placeholder = $_
+                if ($_path -match $_placeholder.Tag){
+                    Rename-Item -Path $_path.FullName -NewName "$_path".Replace($_placeholder.Tag, $_placeholder.Inplace)
+        }}}
+        
+        Write-Host "  - Getting Last we spoke..." -ForegroundColor Cyan
+        $most_recent_kit = (Get-ChildItem "$kit_dir/$team_member" | Sort-Object -Descending)[0]
+
+        $regex = "### Check-in`n((?:.*`n)*)`n## Goals`n((?:.*`n)*)`n## Actions`n(?:(?:.*`n)*)`n### New Actions`n((?:.*`n*)*)"
+        $data =  [string]::Join("`n", (Get-Content  -Path $most_recent_kit.FullName))
+        $match = $data | Select-String -Pattern $regex
+
+        $placeholders += @{ Tag = '{{ LAST WE SPOKE }}'; Inplace = $match.Matches[0].Groups[1].Value.Trim(); }
+        $placeholders += @{ Tag = '{{ GOALS }}'; Inplace = $match.Matches[0].Groups[2].Value.Trim(); }
+        $placeholders += @{ Tag = '{{ PROPOSED ACTIONS }}'; Inplace = $match.Matches[0].Groups[3].Value.Trim(); }
+
+        Write-Host "  - Populating previous info..." -ForegroundColor Cyan
+        Get-ChildItem -Recurse "$temp_dir/*" | ForEach-Object { $_path = $_
+            $placeholders | ForEach-Object { $_placeholder = $_
+                if (Test-Path -Path $_path.FullName -PathType Leaf) {
+                    if ($null -ne (Get-Content $_path.FullName)) {
+                            (Get-Content $_path.FullName).Replace($_placeholder.Tag, $_placeholder.Inplace) | Set-Content $_path.FullName
+        }}}}
+        Copy-Item "$temp_dir/*" "$kit_dir/$team_member"
+        $most_recent_kit = (Get-ChildItem "$kit_dir/$team_member" | Sort-Object -Descending)[0]
+            
         if ($team_member_id -ge $team_members.Length -and $team_member_id -ne "n") {break}
         $is_successful = $true
     }
@@ -101,9 +118,10 @@ function Build {
         $error_message = $Error[0].Exception.Message
     }
     finally {
+        Remove-Item -Recurse $temp_dir
         if ($is_successful) {
             Write-Host "  - Opening notes" -ForegroundColor Cyan
-            # $null = code ##NOTE
+            $null = code "$kit_dir/$team_member" $most_recent_kit.FullName
             Write-Host "Done!" -ForegroundColor Green
         }
         else {
@@ -115,6 +133,10 @@ function Build {
             Write-Warning -Message "$error_message"
         }
     }
+}
+
+function New-TeamMember {
+    # TBA
 }
 
 function Show-Help {
@@ -163,7 +185,8 @@ Parameter flags can be supplied with the command to adjust the script's behaviou
 switch ($true) {
     $Version { Write-Host $version_number }
     $Help { Show-Help }
-    Default { Build }
+    $KIT { New-KIT }
+    Default { New-Meeting }
 }
 
 ### ~~~~ GARBAGE COLLECTION ~~~~ ###
