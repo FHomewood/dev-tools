@@ -4,6 +4,10 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+### Added
+- Functions script groups all shared functions into one file to be sourced.
+- Aliases script groups all into one file to be sourced.
+- `activate` alias to be used to jump into a python virtual environment quickly.
 
 
 ## [0.1.2] - 2024-01-18
