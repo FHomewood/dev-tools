@@ -4,6 +4,10 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+### Added
+- Functions script groups all shared functions in to one file to be sourced.
+- Aliases script groups all in to one file to be sourced.
+- Activate-VEnv function to be used by a alias to enable quick and clean virtualenvironment activation.
 
 
 ## [0.1.2] - 2024-01-18
