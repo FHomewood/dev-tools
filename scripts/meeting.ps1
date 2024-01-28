@@ -64,6 +64,9 @@ function New-KIT {
     try {
         Write-Host "~~~ Loading Meeting Notes ~~~" -ForegroundColor DarkGreen
 
+        # Copy kit notes into temp
+        $null = Copy-Item "$devtools_dir/env_templates/kit_note/*" $temp_dir -Recurse
+
         # Show team member selection interface
         Write-Host "Team Members:" -ForegroundColor Yellow
         $team_members = Get-ChildItem $kit_dir
@@ -75,13 +78,12 @@ function New-KIT {
         
         # Read and process result
         $team_member_id = Read-Host
-        if ($team_member_id -eq "n") { $team_member = New-TeamMember }
+        if ($team_member_id -eq "n") { $team_member = New-TeamMember; break; }
         elseif ($team_member_id -lt $team_members.Length) { $team_member = $team_members[$team_member_id] }
         else { Write-Host "Could not find team member" -ForegroundColor Red; break }
         
         
         Write-Host "  - Building notes template..." -ForegroundColor Cyan
-        $null = Copy-Item "$devtools_dir/env_templates/kit_note/*" $temp_dir -Recurse
         
         Write-Host "  - Loading last meeting..." -ForegroundColor Cyan
         $most_recent_kit = (Get-ChildItem "$kit_dir/$team_member" | Sort-Object -Descending)[0]
@@ -142,6 +144,9 @@ function New-KIT {
         $error_message = $Error[0].Exception.Message
     }
     finally {
+        Write-Host "  - Restoring..." -ForegroundColor Cyan
+        $children = Get-ChildItem $temp_dir -Recurse
+        $children | % {Write-Host "      $_ Removed" -ForegroundColor DarkCyan}
         Remove-Item -Recurse $temp_dir
         if ($is_successful) {
             Write-Host "  - Opening notes" -ForegroundColor Cyan
@@ -149,9 +154,7 @@ function New-KIT {
             Write-Host "Done!" -ForegroundColor Green
         }
         else {
-            Write-Host "  - Restoring..." -ForegroundColor Cyan
-            $null = Remove-Item  $abs_path -Recurse -Force
-            if (!$error_message) { 
+            if (!$error_message) {
                 $error_message = "An unknown error occurred"
             }
             Write-Warning -Message "$error_message"
@@ -160,7 +163,50 @@ function New-KIT {
 }
 
 function New-TeamMember {
-    # TBA
+    Write-Host "New team member name: " -ForegroundColor Yellow -NoNewline
+    $team_member = Read-Host
+    New-Item $kit_dir\$team_member -ItemType Directory
+    
+    # Define values to replace
+    $placeholders = @(
+        @{ Tag = '{{ SHORT DATE }}'; Inplace = "$($date.ToString("yyyy-MM-dd"))"; },
+        @{ Tag = '{{ LONG DATE }}'; Inplace = "$($date.ToString("dddd, d MMM yyyy"))"; },
+        @{ Tag = '{{ TEAM MEMBER }}'; Inplace = "$team_member"; },
+        @{ Tag = '{{ LAST WE SPOKE }}'; Inplace = "- "; },
+        @{ Tag = '{{ GOALS }}'; Inplace = "- "; },
+        @{ Tag = '{{ PROPOSED ACTIONS }}'; Inplace = "- "; }
+    )
+
+    Write-Host "  - Replacing placeholder filenames..." -ForegroundColor Cyan
+    # For each path
+    Get-ChildItem -Recurse "$temp_dir/*" | ForEach-Object { $_path = $_
+        # And every placeholder value
+        $placeholders | ForEach-Object { $_placeholder = $_
+            # Check the name of the file
+            if ($_path -match $_placeholder.Tag){
+                # And replace any of that placeholder value in the name
+                Rename-Item -Path $_path.FullName -NewName "$_path".Replace($_placeholder.Tag, $_placeholder.Inplace)
+    }}}
+
+    Write-Host "  - Populating previous info..." -ForegroundColor Cyan
+    # For each path
+    Get-ChildItem -Recurse "$temp_dir/*" | ForEach-Object { $_path = $_
+        # And every placeholder value
+        $placeholders | ForEach-Object { $_placeholder = $_
+            # if the file_path is not a directory
+            if (Test-Path -Path $_path.FullName -PathType Leaf) {
+                # or an empty value
+                if ($null -ne (Get-Content $_path.FullName)) {
+                    # Then replace any of that placeholder value in the file content
+                    (Get-Content $_path.FullName).Replace($_placeholder.Tag, $_placeholder.Inplace) | Set-Content $_path.FullName
+    }}}}
+
+    # Move transformed files to their required directory
+    Copy-Item "$temp_dir/*" "$kit_dir/$team_member"
+
+    # Reassess most recent meeting
+    $most_recent_kit = (Get-ChildItem "$kit_dir/$team_member" | Sort-Object -Descending)[0]
+    $is_successful = $true
 }
 
 function Show-Help {
