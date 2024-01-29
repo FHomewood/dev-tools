@@ -101,10 +101,12 @@ function Configure {
     $null = Write-Output 'n' | ssh-keygen -q -f "$HOME/.ssh/id_rsa" -N """" -t rsa
 
     if (!(Test-Path $repo_dir)){
-        git clone "https://github.com/FHomewood/dev-tools.git" '.dev-tools'
+        git clone "https://github.com/FHomewood/dev-tools.git" ($repo_dir | Resolve-Path)
         [Environment]::SetEnvironmentVariable("Path", "$env:Path;$repo_dir", "Machine")
-
     }
+
+    # Apply dev-tools powershell profile
+    (Get-Content "$repo_dir\env_templates\profile\Profile.ps1") > $PROFILE.CurrentUserAllHosts
 }
 
 function Show-Help {
