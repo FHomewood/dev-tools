@@ -8,4 +8,3 @@ try { . $PSScriptRoot\prompt.ps1; } catch { Write-Host "Couldn't source dev-tool
 $env:VIRTUAL_ENV_DISABLE_PROMPT = 1
 
 if ('./.venv/scripts/activate' | Test-Path) { Activate-VEnv; }
-# try { . $PSScriptRoot\prompt.ps1; } catch { Write-Host "Couldn't source dev-tools prompt" }
