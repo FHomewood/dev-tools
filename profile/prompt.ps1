@@ -6,8 +6,8 @@ function prompt {
     
     $prompt = ""
     switch ($true) {
-        ([boolean]$VIRTUAL_ENV_PATH) { 
-            $prompt += "$([char]27)[38;5;150m$(Split-Path -Path $VIRTUAL_ENV_PATH -Leaf)$([char]27)[38;5;249m:" 
+        ([boolean]$env:VIRTUAL_ENV_PROMPT) { 
+            $prompt += "$([char]27)[38;5;150m$env:VIRTUAL_ENV_PROMPT$([char]27)[38;5;249m:" 
         }
         Default { 
             $prompt += "$([char]27)[38;5;150mwindows$([char]27)[38;5;249m:" 

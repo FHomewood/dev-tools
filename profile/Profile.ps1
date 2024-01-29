@@ -5,7 +5,7 @@ try { . $PSScriptRoot\functions.ps1; } catch { Write-Host "Couldn't source dev-t
 try { . $PSScriptRoot\aliases.ps1; } catch { Write-Host "Couldn't source dev-tools aliases" }
 try { . $PSScriptRoot\prompt.ps1; } catch { Write-Host "Couldn't source dev-tools prompt" }
 
-# $env:VIRTUAL_ENV_DISABLE_PROMPT = 1
+$env:VIRTUAL_ENV_DISABLE_PROMPT = 1
 
-if ('./.venv/scripts/activate' | Test-Path) { activate; }
-
+if ('./.venv/scripts/activate' | Test-Path) { Activate-VEnv; }
+# try { . $PSScriptRoot\prompt.ps1; } catch { Write-Host "Couldn't source dev-tools prompt" }

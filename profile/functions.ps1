@@ -2,23 +2,23 @@
 # A functions script to group all shared functions into one file to be sourced.
 
 
-function Deactivte-VEnv {
-    Eemove-Alias -Name "deactivate" -Force
+function Deactivate-VEnv {
+    deactivate
     Set-Variable -Name "VIRTUAL_ENV_PATH" -Value $null -Scope Global
-    . $PSScriptRoot\prompt
+    try { . $PSScriptRoot\prompt.ps1; } catch { Write-Host "Couldn't source dev-tools prompt" }
 }
+
 function Activate-VEnv {
     param(
         [string] $path
     )
-    Set-Alias -Name "deactivate" -Value "Deactivate-VEnv"
-    
     if (!$path) { $path = "./.venv"}
     $null = $path | Resolve-Path
     if (!($path | Test-Path)) { break }
 
     . "$path/scripts/activate"
     Set-Variable -Name "VIRTUAL_ENV_PATH" -Value $path -Scope Global
+    . $PSScriptRoot\prompt
 }
 
 function Assign-Profile {
