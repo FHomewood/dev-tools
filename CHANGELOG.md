@@ -5,9 +5,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 ### Added
-- Functions script groups all shared functions into one file to be sourced.
-- Aliases script groups all into one file to be sourced.
+- Powershell Profile script.
+- Functions script groups all shared functions into one file to be sourced in profile.
+- Aliases script groups all into one file to be sourced in profile.
+- Prompt script stores the prompt into one space to be sourced whenever the prompt needs overriding.
 - `activate` alias to be used to jump into a python virtual environment quickly.
+- `profile` alias reloads the current profile in the current powershell.
 
 
 ## [0.1.2] - 2024-01-18
@@ -48,7 +51,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.1.0] - 2024-01-11
 ### Added
-- DevTools - A command to control and standardise develompment machines.
+- DevTools - A command to control and standardise development machines.
 - DevTools basic setup initialisation.
 - DevTools - Installs [Chocolatey](https://docs.chocolatey.org/en-us/).
 - DevTools - Installs development dependencies.
