@@ -150,7 +150,8 @@ function New-KIT {
         Remove-Item -Recurse $temp_dir
         if ($is_successful) {
             Write-Host "  - Opening notes" -ForegroundColor Cyan
-            $null = code "$kit_dir/$team_member" $most_recent_kit.FullName
+            try {$null = code "$kit_dir/$team_member" $most_recent_kit.FullName}
+            catch { Write-Host "VSCode is not available, file generated at:`n$($most_recent_kit.FullName)"}
             Write-Host "Done!" -ForegroundColor Green
         }
         else {

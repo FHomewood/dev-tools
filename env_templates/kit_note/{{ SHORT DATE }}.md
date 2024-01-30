@@ -1,4 +1,4 @@
-# {{ TEAM MEMBER }} <br/> {{ LONG DATE }}
+# _{{ TEAM MEMBER }}_ <br/> {{ LONG DATE }}
 Document to record and reference notes during keeping in touch meetings with team members.
 
 ### Last We Spoke
