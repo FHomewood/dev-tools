@@ -11,6 +11,11 @@ All notable changes to this project will be documented in this file.
 - Prompt script stores the prompt into one space to be sourced whenever the prompt needs overriding.
 - `activate` alias to be used to jump into a python virtual environment quickly.
 - `profile` alias reloads the current profile in the current PowerShell.
+- Meeting - A command to create templated meeting notes.
+- Meeting - KIT (Keeping in Touch) template file.
+- Meeting - KIT notes track information from previous meeting.
+- Meeting - Select from available team members.
+- Meeting - Add new team members option.
 
 
 ## [0.1.2] - 2024-01-18
