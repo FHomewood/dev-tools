@@ -10,7 +10,7 @@ param (
 )
 
 ### ~~~~ METADATA ~~~~ ###
-$version_number = "v0.1.3"
+$version_number = 'v0.1.4'
 $script_name = 'Meeting'
 
 ### ~~~~ CONFIG ~~~~ ###
@@ -78,7 +78,7 @@ function New-KIT {
         
         # Read and process result
         $team_member_id = Read-Host
-        if ($team_member_id -eq "n") { $team_member = New-TeamMember; break; }
+        if ($team_member_id -eq "n") { . New-TeamMember }
         elseif ($team_member_id -lt $team_members.Length) { $team_member = $team_members[$team_member_id] }
         else { Write-Host "Could not find team member" -ForegroundColor Red; break }
         
@@ -165,7 +165,7 @@ function New-KIT {
 function New-TeamMember {
     Write-Host "New team member name: " -ForegroundColor Yellow -NoNewline
     $team_member = Read-Host
-    New-Item $kit_dir\$team_member -ItemType Directory
+    $null = New-Item $kit_dir\$team_member -ItemType Directory
     
     # Define values to replace
     $placeholders = @(
