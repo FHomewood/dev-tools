@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 - Meeting - KIT (Keeping in Touch) template file.
 - Meeting - KIT notes track information from previous meeting.
 - Meeting - Select from available team members.
+- Meeting - Add new team members option.
 
 
 ## [0.1.2] - 2024-01-18
