@@ -4,6 +4,9 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+
+
+## [0.1.3] - 2024-01-30
 ### Added
 - PowerShell Profile script.
 - Functions script groups all shared functions into one file to be sourced in profile.
