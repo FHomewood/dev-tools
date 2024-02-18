@@ -9,7 +9,7 @@ param (
 )
 
 ### ~~~~ METADATA ~~~~ ###
-$version_number = 'v0.1.0'
+$version_number = 'v0.1.1'
 $script_name = 'TitleNotes'
 
 ### ~~~~ CONFIG ~~~~ ###
@@ -27,7 +27,6 @@ function Rename-Notes {
 
         $all_notes = Get-ChildItem $notes_dir -Recurse
         $all_notes | Get-Name
-
 
         $is_successful = $true
     }
@@ -52,9 +51,19 @@ function Get-Name {
 
     }
     Process{
-        if ($_.BaseName -match "[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}"){
+        $timestamp_regex = "[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}"
+        $file_has_timestamp = $_.BaseName -match $timestamp_regex
+        $file_type = $_.Extension
+
+        if ($file_has_timestamp -and $file_type -eq ".md"){
+            $timestamp = ($_.BaseName | Select-String -Pattern "($timestamp_regex)").Matches[0].Groups[1].Value
             $meeting_name = (Get-Content $_.FullName | Select-String -Pattern "^# (.*) <").Matches[0].Groups[1].Value
-            
+            if ($meeting_name -ne "_MEETING_"){
+                $file_meeting_name = ($meeting_name.Trim().TrimStart("_").TrimEnd("_").Replace(": ", " - ")) -replace "[:<>/\|?*]"
+                Rename-Item $_.FullName -NewName "$timestamp - $file_meeting_name.md"
+                
+                Write-Host -ForegroundColor Cyan "  $($_.BaseName) -> $timestamp - $file_meeting_name.md"
+            }
         }
     }
     End{
