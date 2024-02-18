@@ -6,7 +6,8 @@
 param (
     [switch] $Version,
     [switch] $Help,
-    [switch] $KIT
+    [switch] $KIT,
+    [switch] $Daily
 )
 
 ### ~~~~ METADATA ~~~~ ###
@@ -91,7 +92,11 @@ function New-Meeting {
         Remove-Item -Recurse $temp_dir
         if ($is_successful) {
             Write-Host "  - Opening notes" -ForegroundColor Cyan
-            $null = code $today_dir "$today_dir\$($date.ToString("yyyy-MM-dd_hh-mm-ss")).md"
+            try { $null = code $today_dir "$today_dir\$($date.ToString("yyyy-MM-dd_hh-mm-ss")).md" }
+            catch { 
+                Write-Host "VSCode is not available, file generated at:"
+                Write-Host "$today_dir\$($date.ToString("yyyy-MM-dd_hh-mm-ss")).md"
+            }
             Write-Host "Done!" -ForegroundColor Green
         }
         else {
@@ -253,6 +258,82 @@ function New-TeamMember {
     $is_successful = $true
 }
 
+function New-Daily {
+    try {
+        Write-Host "~~~ Loading Meeting Notes ~~~" -ForegroundColor DarkGreen
+
+        $today_dir = "$notes_dir\$($date.ToString("yyyy"))\$($date.ToString("MM-MMMM"))\$($date.ToString("dd-dddd"))"
+        if (!($today_dir | Test-Path)){
+            $null = New-Item -Path $today_dir -ItemType Directory
+        }
+        $today_dir = $today_dir | Resolve-Path
+
+
+        # Copy kit notes into temp
+        $null = Copy-Item "$devtools_dir/env_templates/daily_note/*" $temp_dir -Recurse
+        
+        # # Define values to replace
+        $placeholders = @(
+            @{ Tag = '{{ TIME STAMP }}'; Inplace = "$($date.ToString("yyyy-MM-dd_hh-mm-ss"))"; },
+            @{ Tag = '{{ LONG DATE }}'; Inplace = "$($date.ToString("dddd, d MMM yyyy"))"; }
+        )
+
+
+        Write-Host "  - Replacing placeholder filenames..." -ForegroundColor Cyan
+        # For each path
+        Get-ChildItem -Recurse "$temp_dir/*" | ForEach-Object { $_path = $_
+            # And every placeholder value
+            $placeholders | ForEach-Object { $_placeholder = $_
+                # Check the name of the file
+                if ($_path -match $_placeholder.Tag){
+                    # And replace any of that placeholder value in the name
+                    Rename-Item -Path $_path.FullName -NewName "$_path".Replace($_placeholder.Tag, $_placeholder.Inplace)
+
+                    #TODO: Probably wont work if needs more than one placeholder
+        }}}
+
+        Write-Host "  - Populating previous info..." -ForegroundColor Cyan
+        # For each path
+        Get-ChildItem -Recurse "$temp_dir/*" | ForEach-Object { $_path = $_
+            # And every placeholder value
+            $placeholders | ForEach-Object { $_placeholder = $_
+                # if the file_path is not a directory
+                if (Test-Path -Path $_path.FullName -PathType Leaf) {
+                    # or an empty value
+                    if ($null -ne (Get-Content $_path.FullName)) {
+                        # Then replace any of that placeholder value in the file content
+                        (Get-Content $_path.FullName).Replace($_placeholder.Tag, $_placeholder.Inplace) | Set-Content $_path.FullName
+        }}}}
+
+        # Move transformed files to their required directory
+        Copy-Item "$temp_dir/*" $today_dir
+
+        $is_successful = $true
+    }
+    catch {
+        $error_message = $Error[0].Exception.Message
+    }
+    finally {
+        Remove-Item -Recurse $temp_dir
+        if ($is_successful) {
+            Write-Host "  - Opening notes" -ForegroundColor Cyan
+            try { $null = code $today_dir "$today_dir\$($date.ToString("yyyy-MM-dd_hh-mm-ss")) - Daily Notes.md" }
+            catch { 
+                Write-Host "VSCode is not available, file generated at:"
+                Write-Host "$today_dir\$($date.ToString("yyyy-MM-dd_hh-mm-ss")) - Daily Notes.md"
+            }
+            Write-Host "Done!" -ForegroundColor Green
+        }
+        else {
+            Write-Host "  - Restoring..." -ForegroundColor Cyan
+            if (!$error_message) { 
+                $error_message = "An unknown error occurred"
+            }
+            Write-Warning -Message "$error_message"
+        }
+    }
+}
+
 function Show-Help {
     Write-Host `
     "~~ $script_name ~~
@@ -300,6 +381,7 @@ switch ($true) {
     $Version { Write-Host $version_number }
     $Help { Show-Help }
     $KIT { New-KIT }
+    $Daily { New-Daily }
     Default { New-Meeting }
 }
 
