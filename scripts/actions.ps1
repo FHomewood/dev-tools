@@ -26,8 +26,21 @@ $init_dir = Get-Location
 
 function Build {
     try {
-
-
+        $sub_files = Get-ChildItem -Path $meeting_dir -Include "*.md" -r
+        $all_actions = $sub_files | ForEach-Object {
+            $file = $_
+            if ($file.BaseName -eq "README"){ return; }
+            $regex = "(?<=### Actions`n)(.*`n)*(?=`n### Tags)"
+            $data =  [string]::Join("`n", (Get-Content -Path $file.FullName))
+            $actions = ($data | Select-String -Pattern $regex)
+            if ($actions){
+                $actions.Matches[0].Groups[1].Captures
+            }
+        }
+        $all_actions = $all_actions | Where-Object {$_ -match "- (.+)`n"}
+        $all_actions = $all_actions | % { $_ | Select-String -Pattern "- (.+)`n" }
+        $all_actions = $all_actions | % { $_.Matches[0].Groups[1].value }
+        $all_actions
         $is_successful = $true
     }
     catch {
