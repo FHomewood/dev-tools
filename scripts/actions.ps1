@@ -4,15 +4,14 @@
 ### ~~~~ PARAMETERS ~~~~ ###
 [CmdletBinding()]
 param (
+    [string] $Function,
+    [string] $Function_arg,
     [switch] $Version,
-    [switch] $Help,
-    [switch] $Playground,
-    [switch] $Quick,
-    [string] $EnvName
+    [switch] $Help
 )
 
 ### ~~~~ METADATA ~~~~ ###
-$version_number = "v0.1.0"
+$version_number = "v0.1.1"
 $script_name = 'Actions'
 
 ### ~~~~ CONFIG ~~~~ ###
@@ -73,6 +72,32 @@ function Build-Actions {
         }
     }
 }
+function Close-Action{
+    param (
+        [string] $Argument
+    )
+    # Set up action store
+    $action_file_path = ("$dev_tools_dir.dtactions" | Resolve-Path)
+    if (!(Test-Path -Path $action_file_path)){
+        $null = New-Item -Path $action_file_path -Name ".dtactions" -Type "file" -Value "{}"
+    }
+    $action_file = Get-Content $action_file_path | ConvertFrom-JSON
+    if (!(Get-Member -InputObject $action_file -Name "closed" -Membertype Properties)){
+        Add-Member -InputObject $action_file -Name "closed" -Membertype NoteProperty -Value @()
+    }
+    if (!(Get-Member -InputObject $action_file -Name "active" -Membertype Properties)){
+        Add-Member -InputObject $action_file -Name "active" -Membertype NoteProperty -Value @()
+    }
+
+    $matches = $action_file.active | Where-Object { $_ -match "$Argument" }
+    if ( $matches -eq $null) { Write-Host No Match; return }
+    if ( $matches.GetType() -eq [System.Object[]] ) { Write-Host Too Many Matches; return}
+    $match = $matches
+    $action_file.closed += @($matches)
+    $action_file.active = $action_file.active | Where-Object {$_ -notmatch "$Argument"}
+    ConvertTo-JSON $action_file | Set-Content -Path $action_file_path
+
+}
 
 function Show-Help {
     Write-Host `
@@ -116,6 +141,7 @@ Parameter flags can be supplied with the command to adjust the script's behaviou
 switch ($true) {
     $Version { Write-Host $version_number }
     $Help { Show-Help }
+    ($Function -eq "close") { Close-Action($Function_arg) }
     Default { Build-Actions }
 }
 
