@@ -4,7 +4,12 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
-
+### Added
+- Actions script
+- Actions - A command to manage existing actions created in notes files.
+- Actions - Stores state of all actions in `.dev-tools/.dtactions` file.
+- Actions - Shows all unfinished actions.
+- Actions - Close function moves actions from active to closed.
 
 ## [0.1.3] - 2024-01-30
 ### Added
