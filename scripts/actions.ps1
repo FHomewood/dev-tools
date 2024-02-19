@@ -48,13 +48,19 @@ function Build-Actions {
             if (!$actions){ return }
             $actions = $actions.Matches[0].Groups[1].Captures
             $actions = $actions | Where-Object { $_|Select-String -Pattern "- (.+)`n" }
-            $actions = $actions | % { ($_|Select-String -Pattern "- (.+)`n").Matches[0].Groups[1].value }
+            $actions = $actions | ForEach-Object { ($_|Select-String -Pattern "- (.+)`n").Matches[0].Groups[1].value }
             if ($actions){
                 "$timestamp | $actions"
             }
         }
         $action_file.active = $all_actions | Where-Object { !($action_file.closed -contains $_) }
         ConvertTo-JSON $action_file | Set-Content -Path $action_file_path
+        if ($action_file.active) {
+            $action_file.active | ForEach-Object { Write-Host -ForegroundColor DarkCyan $_}
+        }
+        else {
+            Write-Host -ForegroundColor DarkCyan "No actions to display"
+        }
         
         $is_successful = $true
     }
@@ -90,17 +96,20 @@ function Close-Action{
     }
 
     $matches = $action_file.active | Where-Object { $_ -match "$Argument" }
-    if ( $matches -eq $null) { Write-Host No Match; return }
-    if ( $matches.GetType() -eq [System.Object[]] ) { Write-Host Too Many Matches; return}
+    if ( $matches -eq $null) { Write-Host -ForegroundColor DarkCyan "Could not match an action"; return }
+    if ( $matches.GetType() -eq [System.Object[]] ) { 
+        Write-Host -ForegroundColor DarkCyan "The pattern matched multiple actions"
+        $matches | ForEach-Object { Write-Host -ForegroundColor DarkCyan $_ }
+        return
+    }
     $match = $matches
     $action_file.closed += @($matches)
     $action_file.active = $action_file.active | Where-Object {$_ -notmatch "$Argument"}
     ConvertTo-JSON $action_file | Set-Content -Path $action_file_path
-
 }
 
 function Show-Help {
-    Write-Host `
+    Write-Host -ForegroundColor DarkCyan `
     "~~ $script_name ~~
 A command to manage existing actions created in notes files.
 
@@ -117,7 +126,7 @@ Parameter flags can be supplied with the command to adjust the script's behaviou
     ) | Format-Table
     
     Write-Output $table
-    Write-Host "In the script itself there are a series of config options that can be changed if they are not aligned with the system."
+    Write-Host -ForegroundColor DarkCyan "In the script itself there are a series of config options that can be changed if they are not aligned with the system."
     $table = @(
         [PSCustomObject]@{
             Config = '$meeting_dir';
@@ -139,7 +148,7 @@ Parameter flags can be supplied with the command to adjust the script's behaviou
 
 ### ~~~~ RUN ~~~~ ###
 switch ($true) {
-    $Version { Write-Host $version_number }
+    $Version { Write-Host -ForegroundColor DarkCyan $version_number }
     $Help { Show-Help }
     ($Function -eq "close") { Close-Action($Function_arg) }
     Default { Build-Actions }
