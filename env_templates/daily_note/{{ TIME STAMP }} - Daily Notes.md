@@ -3,9 +3,6 @@ Document to record and reference notes for the day.
 
 
 ## Wellness
-### Today's Mantra
-- 
-
 ### How was my general mood today?
 - 
 
@@ -34,6 +31,8 @@ Document to record and reference notes for the day.
 ### Notes on Objective #3
 - 
 
-### Tags
+### Actions
 - 
 
+### Tags
+- 
