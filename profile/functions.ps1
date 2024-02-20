@@ -19,3 +19,7 @@ function Assign-Profile {
     if (!($path | Test-Path)) {break}
     . $path
 }
+
+function Time-Stamp {
+    Write-Host (Get-Date).ToString("yyyy-MM-dd_hh-mm-ss")
+}
