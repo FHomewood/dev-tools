@@ -352,6 +352,10 @@ Parameter flags can be supplied with the command to adjust the script's behaviou
         [PSCustomObject]@{ 
             Flag = '-KIT, -k'; 
             Description = 'Generate keeping-in-touch meeting notes';
+        },
+        [PSCustomObject]@{ 
+            Flag = '-Daily, -d'; 
+            Description = 'Generate daily notes';
         }
     ) | Format-Table
     
