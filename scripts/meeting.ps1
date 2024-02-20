@@ -15,8 +15,8 @@ $version_number = 'v0.1.4'
 $script_name = 'Meeting'
 
 ### ~~~~ CONFIG ~~~~ ###
-$notes_dir = "~\Documents\Notes\"
-$kit_dir = "~\Documents\Notes\Meeting Notes\Keeping in Touch\"
+$notes_dir = "N:\Notes\"
+$kit_dir = "N:\Notes\Meeting Notes\Keeping in Touch\"
 $devtools_dir = "~\.dev-tools\"
 $temp_dir = $devtools_dir + ".temp\"
 
@@ -147,6 +147,7 @@ function New-KIT {
         # Define values to replace
         $placeholders = @(
             @{ Tag = '{{ SHORT DATE }}'; Inplace = "$($date.ToString("yyyy-MM-dd"))"; },
+            @{ Tag = '{{ TIME STAMP }}'; Inplace = "$($date.ToString("yyyy-MM-dd_hh-mm-ss"))"; },
             @{ Tag = '{{ LONG DATE }}'; Inplace = "$($date.ToString("dddd, d MMM yyyy"))"; },
             @{ Tag = '{{ TEAM MEMBER }}'; Inplace = "$team_member"; },
             @{ Tag = '{{ LAST WE SPOKE }}'; Inplace = $match.Matches[0].Groups[1].Value.Trim(); },
