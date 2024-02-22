@@ -26,6 +26,7 @@ function Time-Stamp {
 
 function Load-Config {
     $content = Get-Content "$env:devtools_dir.dtconfig"
+    $env:devtools_dir = [System.Environment]::GetEnvironmentVariable('devtools_dir', 'Machine')
     $content | ForEach-Object {
         if ([string]::IsNullOrWhiteSpace($_) -or $_ -like '#*' -or $_ -like '=*') { return }
         $name, $value = $_.split('=')
