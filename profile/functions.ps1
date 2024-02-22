@@ -23,3 +23,14 @@ function Assign-Profile {
 function Time-Stamp {
     Write-Host (Get-Date).ToString("yyyy-MM-dd_hh-mm-ss")
 }
+
+function Load-Config {
+    $content = Get-Content "$env:devtools_dir.dtconfig"
+    $content | ForEach-Object {
+        if ([string]::IsNullOrWhiteSpace($_) -or $_ -like '#*' -or $_ -like '=*') { return }
+        $name, $value = $_.split('=')
+        $name = $name.Trim().Trim('"')
+        $value = $value.Trim().Trim('"')
+        Set-Content env:\$name $value
+    }
+}
