@@ -11,6 +11,9 @@ All notable changes to this project will be documented in this file.
 - Profile - `Time-Stamp` PowerShell function added to command set.
 - Title Notes - A command to rename note files to have suitable titles.
 - Title Notes - Filters meeting titles and appends them to their timestamp names.
+- Config file to build user environment variables.
+- Template config file for reference.
+- Configuration instructions in the readme.
 
 ### Changed
 - Meeting - Keeping in Touch meeting heading now simply 'Keeping in Touch' instead of team member name.
