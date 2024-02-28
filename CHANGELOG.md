@@ -14,6 +14,11 @@ All notable changes to this project will be documented in this file.
 - Config file to build user environment variables.
 - Template config file for reference.
 - Configuration instructions in the readme.
+- Actions script
+- Actions - A command to manage existing actions created in notes files.
+- Actions - Stores state of all actions in `.dev-tools/.dtactions` file.
+- Actions - Shows all unfinished actions.
+- Actions - Close function moves actions from active to closed.
 
 ### Changed
 - Meeting - Keeping in Touch meeting heading now simply 'Keeping in Touch' instead of team member name.
