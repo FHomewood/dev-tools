@@ -7,6 +7,8 @@ try { . $PSScriptRoot\prompt.ps1; } catch { Write-Host "Couldn't source dev-tool
 
 $env:VIRTUAL_ENV_DISABLE_PROMPT = 1
 
+Load-Config
+
 if ('./.venv/scripts/activate' | Test-Path) { 
     try{ Activate-VEnv; }
     catch { Write-Host "Couldn't activate python virtual environment" }

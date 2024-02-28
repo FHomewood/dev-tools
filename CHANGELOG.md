@@ -5,11 +5,29 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 ### Added
+- Meeting - `-d -daily` flag for making daily notes files.
+- Meeting - Daily notes template file.
+- Meeting - Individual meeting notes template file.
+- Profile - `Time-Stamp` PowerShell function added to command set.
+- Title Notes - A command to rename note files to have suitable titles.
+- Title Notes - Filters meeting titles and appends them to their timestamp names.
+- Config file to build user environment variables.
+- Template config file for reference.
+- Configuration instructions in the readme.
 - Actions script
 - Actions - A command to manage existing actions created in notes files.
 - Actions - Stores state of all actions in `.dev-tools/.dtactions` file.
 - Actions - Shows all unfinished actions.
 - Actions - Close function moves actions from active to closed.
+
+### Changed
+- Meeting - Keeping in Touch meeting heading now simply 'Keeping in Touch' instead of team member name.
+- Meeting - Keeping in Touch meeting heading now formatted in italics.
+- Meeting - Notes are stored in directories according to year, month and day that they were generated.
+- Commands pull configuration from config file not environment variables.
+
+### Fixed 
+- Meeting - Creates meeting notes when no flag provided
 
 ## [0.1.3] - 2024-01-30
 ### Added

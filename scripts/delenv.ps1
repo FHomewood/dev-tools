@@ -10,12 +10,12 @@ param (
 )
 
 ### ~~~~ METADATA ~~~~ ###
-$version_number = "v0.1.1"
+$version_number = "v0.2.0"
 $script_name = 'delenv'
 
 ### ~~~~ CONFIG ~~~~ ###
-$development_dir = "~\Development\"
-$playground_dir = "~\Playground\"
+$development_dir = $env:development_dir
+$playground_dir = $env:playground_dir
 
 ### ~~~~ SETUP ~~~~ ###
 $init_dir = Get-Location | Resolve-Path
@@ -144,19 +144,17 @@ Parameter flags can be supplied with the command to adjust the script's behaviou
     ) | Format-Table
     
     Write-Output $table
-    Write-Host "In the script itself there are a series of config options that can be changed if they are not aligned with the system"
+    Write-Host "In the script itself there are a series of config options that can be adjusted in a .dtconfig file."
     $table = @(
         [PSCustomObject]@{
-            Config = '$development_dir';
+            Config = 'development_dir';
             Description = 'Directory for development environments';
             Value = "$development_dir";
-            Default = '~\Development\';
         },
         [PSCustomObject]@{
-            Config = '$playground_dir';
+            Config = 'playground_dir';
             Description = 'Directory for playground environments';
             Value = "$playground_dir";
-            Default = '~\Playground\';
         }
     ) | Format-Table
     Write-Output $table

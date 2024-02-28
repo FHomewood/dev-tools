@@ -11,7 +11,7 @@ param (
 )
 
 ### ~~~~ METADATA ~~~~ ###
-$version_number = 'v0.1.2'
+$version_number = 'v0.2.0'
 $script_name = 'dev-tools'
 
 ### ~~~~ CONFIG ~~~~ ###
@@ -74,27 +74,7 @@ function Install-Dependencies {
 
 function Configure {
     Write-Host "~~~ Configuring Machine ~~~" -ForegroundColor Green
-    Write-Host "  - Collecting environment variables..." -ForegroundColor Cyan
-    $env:first_name = 'Frankie' # Read-Host "What is your first name? "
-    $env:first_name = $text_info.ToTitleCase($env:first_name)
-    [Environment]::SetEnvironmentVariable("config_first_name", $env:first_name, [System.EnvironmentVariableTarget]::Machine)
-    $env:last_name = 'Homewood' # Read-Host "What is your last name? "
-    $env:last_name = $text_info.ToTitleCase($env:last_name)
-    [Environment]::SetEnvironmentVariable("config_last_name", $env:last_name, [System.EnvironmentVariableTarget]::Machine)
-    $env:email = 'f.homewood@outlook.com' # Read-Host "What is your git email? "
-    $env:email = $text_info.ToLower($env:email)
-    [Environment]::SetEnvironmentVariable("config_email", $env:email, [System.EnvironmentVariableTarget]::Machine)
-
-    
     Write-Host "  - Configuring git config..." -ForegroundColor Cyan
-    $git_dir = "C:\Program Files\Git\bin"
-    $git_in_path = $env:Path -split ";" -contains $git_dir
-    if (!$git_in_path)
-    {
-        [Environment]::SetEnvironmentVariable("PATH", "$env:Path;$git_dir", "Machine")
-    }
-
-    git config --global credential.helper "cache --timeout=$(24*60*60)"
     git config --global user.name "$env:first_name $env:last_name"
     git config --global user.email $env:email
     
@@ -106,7 +86,7 @@ function Configure {
     }
 
     # Apply dev-tools powershell profile
-    (Get-Content "$repo_dir\env_templates\profile\Profile.ps1") > $PROFILE.CurrentUserAllHosts
+    ". $repo_dir\profile\Profile.ps1" > $PROFILE.CurrentUserAllHosts
 }
 
 function Show-Help {
@@ -135,7 +115,7 @@ Parameter flags can be supplied with the command to adjust the script's behaviou
     ) | Format-Table
     
     Write-Output $table
-    Write-Host "In the script itself there are a series of config options that can be changed if they are not aligned with the system"
+    Write-Host "In the script itself there are a series of config options that can be adjusted in a .dtconfig file."
     $table = @(
     ) | Format-Table
     Write-Output $table
