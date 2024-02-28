@@ -26,10 +26,11 @@ $init_dir = Get-Location
 function Build-Actions {
     try {
         # Set up action store
-        $action_file_path = ("$dev_tools_dir.dtactions" | Resolve-Path)
-        if (!(Test-Path -Path $action_file_path)){
-            $null = New-Item -Path $action_file_path -Name ".dtactions" -Type "file" -Value "{}"
+        $dotfiles_dir = $dev_tools_dir + "dot-files/"
+        if (!(Test-Path -Path "$dotfiles_dir.dtactions")){
+            $null = New-Item -Path $dotfiles_dir -Name ".dtactions" -Type "file" -Value "{}"
         }
+        $action_file_path = ($dotfiles_dir + ".dtactions") | Resolve-Path
         $action_file = Get-Content $action_file_path | ConvertFrom-JSON
         if (!(Get-Member -InputObject $action_file -Name "closed" -Membertype Properties)){
             Add-Member -InputObject $action_file -Name "closed" -Membertype NoteProperty -Value @()
@@ -83,10 +84,11 @@ function Close-Action{
         [string] $Argument
     )
     # Set up action store
-    $action_file_path = ("$dev_tools_dir.dtactions" | Resolve-Path)
-    if (!(Test-Path -Path $action_file_path)){
-        $null = New-Item -Path $action_file_path -Name ".dtactions" -Type "file" -Value "{}"
+    $dotfiles_dir = $dev_tools_dir + "dot-files/"
+    if (!(Test-Path -Path "$dotfiles_dir.dtactions")){
+        $null = New-Item -Path $dotfiles_dir -Name ".dtactions" -Type "file" -Value "{}"
     }
+    $action_file_path = ($dotfiles_dir + ".dtactions") | Resolve-Path
     $action_file = Get-Content $action_file_path | ConvertFrom-JSON
     if (!(Get-Member -InputObject $action_file -Name "closed" -Membertype Properties)){
         Add-Member -InputObject $action_file -Name "closed" -Membertype NoteProperty -Value @()
