@@ -9,12 +9,12 @@ param (
 )
 
 ### ~~~~ METADATA ~~~~ ###
-$version_number = 'v0.1.1'
+$version_number = 'v0.2.0'
 $script_name = 'TitleNotes'
 
 ### ~~~~ CONFIG ~~~~ ###
-$notes_dir = "~\Documents\Notes\"
-$kit_dir = "~\Documents\Notes\Meeting Notes\Keeping in Touch\"
+$notes_dir = $env:notes_dir
+$kit_dir = $env:kit_dir
 
 ### ~~~~ SETUP ~~~~ ###
 $is_successful = $false
@@ -90,7 +90,7 @@ Parameter flags can be supplied with the command to adjust the script's behaviou
     ) | Format-Table
     
     Write-Output $table
-    Write-Host "In the script itself there are a series of config options that can be changed if they are not aligned with the system."
+    Write-Host "In the script itself there are a series of config options that can be adjusted in a .dtconfig file.."
     $table = @(
         [PSCustomObject]@{
             Config = '$notes_dir';
