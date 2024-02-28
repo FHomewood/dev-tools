@@ -20,3 +20,11 @@ In cases where the machine's security policy does not allow adjustments to the S
         Download
     </button>
 </a>
+
+## Set-up
+
+### .dtconfig
+
+a `.dtconfig` file contains all of the local configuration that is required for daily use. From a fresh installation of dev-tools there is a `/dot-files/.template_dtconfig` file which can be renamed to `/dot-files/.dtconfig`. This will allow the dev-tools commands to find your local configuration.
+
+Edit the `.dtconfig` file to include accurate information about your set up.
