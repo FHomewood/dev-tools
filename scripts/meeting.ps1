@@ -147,6 +147,7 @@ function New-KIT {
         # Define values to replace
         $placeholders = @(
             @{ Tag = '{{ SHORT DATE }}'; Inplace = "$($date.ToString("yyyy-MM-dd"))"; },
+            @{ Tag = '{{ TIME STAMP }}'; Inplace = "$($date.ToString("yyyy-MM-dd_hh-mm-ss"))"; },
             @{ Tag = '{{ LONG DATE }}'; Inplace = "$($date.ToString("dddd, d MMM yyyy"))"; },
             @{ Tag = '{{ TEAM MEMBER }}'; Inplace = "$team_member"; },
             @{ Tag = '{{ LAST WE SPOKE }}'; Inplace = $match.Matches[0].Groups[1].Value.Trim(); },
