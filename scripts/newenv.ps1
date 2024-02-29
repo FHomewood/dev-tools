@@ -19,7 +19,7 @@ $script_name = 'NewEnv'
 $python_version = $env:python_version
 $development_dir = $env:development_dir
 $playground_dir = $env:playground_dir
-$environment_template_dir = "~\.dev-tools\env_templates\NewEnv"
+$environment_template_dir = "~\.dev-tools\templates\NewEnv"
 $first_name = $env:first_name
 $last_name = $env:last_name
 $contact = $env:email
@@ -184,7 +184,7 @@ Parameter flags can be supplied with the command to adjust the script's behaviou
             Config = '$environment_template_dir';
             Description = 'Directory for template directory';
             Value = "$environment_template_dir";
-            Default = '~\.dev-tools\env_templates\NewEnv';
+            Default = '~\.dev-tools\templates\NewEnv';
         }
     ) | Format-Table
     Write-Output $table

@@ -45,7 +45,7 @@ function New-Meeting {
 
 
         # Copy kit notes into temp
-        $null = Copy-Item "$devtools_dir/env_templates/meeting_note/*" $temp_dir -Recurse
+        $null = Copy-Item "$devtools_dir/templates/meeting_note/*" $temp_dir -Recurse
         
         # # Define values to replace
         $placeholders = @(
@@ -114,7 +114,7 @@ function New-KIT {
         Write-Host "~~~ Loading Meeting Notes ~~~" -ForegroundColor DarkGreen
 
         # Copy kit notes into temp
-        $null = Copy-Item "$devtools_dir/env_templates/kit_note/*" $temp_dir -Recurse
+        $null = Copy-Item "$devtools_dir/templates/kit_note/*" $temp_dir -Recurse
 
         # Show team member selection interface
         Write-Host "Team Members:" -ForegroundColor Yellow
@@ -270,7 +270,7 @@ function New-Daily {
 
 
         # Copy kit notes into temp
-        $null = Copy-Item "$devtools_dir/env_templates/daily_note/*" $temp_dir -Recurse
+        $null = Copy-Item "$devtools_dir/templates/daily_note/*" $temp_dir -Recurse
         
         # # Define values to replace
         $placeholders = @(
