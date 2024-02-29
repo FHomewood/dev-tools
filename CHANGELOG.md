@@ -29,6 +29,8 @@ All notable changes to this project will be documented in this file.
 ### Fixed 
 - Meeting - Creates meeting notes when no flag provided.
 - Template directory now named appropriately `templates/`.
+- Conform keeping in touch generation to have full time stamps in line with the Title-Notes command.
+- Conform keeping in touch actions heading to match the actions command.
 
 
 ## [0.1.3] - 2024-01-30
