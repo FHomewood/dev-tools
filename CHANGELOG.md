@@ -22,7 +22,9 @@ All notable changes to this project will be documented in this file.
 - Commands pull configuration from config file not environment variables.
 
 ### Fixed 
-- Meeting - Creates meeting notes when no flag provided
+- Meeting - Creates meeting notes when no flag provided.
+- Template directory now named appropriately `templates/`.
+
 
 ## [0.1.3] - 2024-01-30
 ### Added
