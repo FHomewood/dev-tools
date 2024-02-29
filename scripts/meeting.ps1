@@ -11,19 +11,19 @@ param (
 )
 
 ### ~~~~ METADATA ~~~~ ###
-$version_number = 'v0.1.4'
+$version_number = 'v0.2.0'
 $script_name = 'Meeting'
 
 ### ~~~~ CONFIG ~~~~ ###
-$notes_dir = "N:\Notes\"
-$kit_dir = "N:\Notes\Meeting Notes\Keeping in Touch\"
-$devtools_dir = "~\.dev-tools\"
-$temp_dir = $devtools_dir + ".temp\"
+$notes_dir = $env:notes_dir
+$kit_dir = $env:kit_notes_dir
+$devtools_dir = $env:devtools_dir
 
 ### ~~~~ SETUP ~~~~ ###
 $is_successful = $false
 $error_message = ''
 $date = Get-Date
+$temp_dir = $devtools_dir + ".temp\"
 if ($temp_dir | Test-Path) {
     Remove-Item -Recurse -Path $temp_dir
 }
@@ -45,7 +45,7 @@ function New-Meeting {
 
 
         # Copy kit notes into temp
-        $null = Copy-Item "$devtools_dir/env_templates/meeting_note/*" $temp_dir -Recurse
+        $null = Copy-Item "$devtools_dir/templates/meeting_note/*" $temp_dir -Recurse
         
         # # Define values to replace
         $placeholders = @(
@@ -114,7 +114,7 @@ function New-KIT {
         Write-Host "~~~ Loading Meeting Notes ~~~" -ForegroundColor DarkGreen
 
         # Copy kit notes into temp
-        $null = Copy-Item "$devtools_dir/env_templates/kit_note/*" $temp_dir -Recurse
+        $null = Copy-Item "$devtools_dir/templates/kit_note/*" $temp_dir -Recurse
 
         # Show team member selection interface
         Write-Host "Team Members:" -ForegroundColor Yellow
@@ -271,7 +271,7 @@ function New-Daily {
 
 
         # Copy kit notes into temp
-        $null = Copy-Item "$devtools_dir/env_templates/daily_note/*" $temp_dir -Recurse
+        $null = Copy-Item "$devtools_dir/templates/daily_note/*" $temp_dir -Recurse
         
         # # Define values to replace
         $placeholders = @(
@@ -361,7 +361,7 @@ Parameter flags can be supplied with the command to adjust the script's behaviou
     ) | Format-Table
     
     Write-Output $table
-    Write-Host "In the script itself there are a series of config options that can be changed if they are not aligned with the system."
+    Write-Host "In the script itself there are a series of config options that can be adjusted in a .dtconfig file.."
     $table = @(
         [PSCustomObject]@{
             Config = '$notes_dir';

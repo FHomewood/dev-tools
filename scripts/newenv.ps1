@@ -12,17 +12,17 @@ param (
 )
 
 ### ~~~~ METADATA ~~~~ ###
-$version_number = "v0.2.3"
+$version_number = "v0.3.0"
 $script_name = 'NewEnv'
 
 ### ~~~~ CONFIG ~~~~ ###
-$python_version = "3.11.5"
-$development_dir = "~\Development\"
-$playground_dir = "~\Playground\"
-$environment_template_dir = "~\.dev-tools\env_templates\NewEnv"
-$first_name = [Environment]::GetEnvironmentVariable("config_first_name", "Machine")
-$last_name = [Environment]::GetEnvironmentVariable("config_last_name", "Machine")
-$contact = [Environment]::GetEnvironmentVariable("config_email", "Machine")
+$python_version = $env:python_version
+$development_dir = $env:development_dir
+$playground_dir = $env:playground_dir
+$environment_template_dir = "~\.dev-tools\templates\NewEnv"
+$first_name = $env:first_name
+$last_name = $env:last_name
+$contact = $env:email
 
 ### ~~~~ SETUP ~~~~ ###
 $env_num = Get-Random -Minimum 10000 -Maximum 99999
@@ -160,7 +160,7 @@ Parameter flags can be supplied with the command to adjust the script's behaviou
     ) | Format-Table
     
     Write-Output $table
-    Write-Host "In the script itself there are a series of config options that can be changed if they are not aligned with the system."
+    Write-Host "In the script itself there are a series of config options that can be adjusted in a .dtconfig file.."
     $table = @(
         [PSCustomObject]@{
             Config = '$python_version';
@@ -184,7 +184,7 @@ Parameter flags can be supplied with the command to adjust the script's behaviou
             Config = '$environment_template_dir';
             Description = 'Directory for template directory';
             Value = "$environment_template_dir";
-            Default = '~\.dev-tools\env_templates\NewEnv';
+            Default = '~\.dev-tools\templates\NewEnv';
         }
     ) | Format-Table
     Write-Output $table
