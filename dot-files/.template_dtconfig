@@ -1,0 +1,16 @@
+### CONFIG TEMPLATE
+### Please Rename to '.dtconfig' and update required fields.
+### Please Update required fields.
+### Please remove top comments.
+
+# dev-tools config
+notes_dir = "~/Notes/"
+kit_notes_dir = "~/Notes/Meeting Notes/Keeping in Touch/"
+development_dir = "~/Development/"
+playground_dir = "~/Playground/"
+python_version = "3.11.5"
+
+# git profile
+first_name = "None"
+last_name = "None"
+email = "None"

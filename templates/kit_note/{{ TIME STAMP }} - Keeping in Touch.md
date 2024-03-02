@@ -1,4 +1,4 @@
-# {{ TEAM MEMBER }} <br/> {{ LONG DATE }}
+# _Keeping in Touch_ <br/> {{ LONG DATE }}
 Document to record and reference notes during keeping in touch meetings with team members.
 
 ### Last We Spoke
@@ -17,5 +17,8 @@ Document to record and reference notes during keeping in touch meetings with tea
 ### Feedback on Actions from Last KIT
 - 
 
-### New Actions
+### Actions
+- 
+
+### Tags
 - 

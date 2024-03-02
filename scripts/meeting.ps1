@@ -6,23 +6,24 @@
 param (
     [switch] $Version,
     [switch] $Help,
-    [switch] $KIT
+    [switch] $KIT,
+    [switch] $Daily
 )
 
 ### ~~~~ METADATA ~~~~ ###
-$version_number = 'v0.1.4'
+$version_number = 'v0.2.0'
 $script_name = 'Meeting'
 
 ### ~~~~ CONFIG ~~~~ ###
-$meeting_dir = "~\Documents\Notes\Meeting Notes\"
-$kit_dir = "~\Documents\Notes\Meeting Notes\Keeping in Touch\"
-$devtools_dir = "~\.dev-tools\"
-$temp_dir = $devtools_dir + ".temp\"
+$notes_dir = $env:notes_dir
+$kit_dir = $env:kit_notes_dir
+$devtools_dir = $env:devtools_dir
 
 ### ~~~~ SETUP ~~~~ ###
 $is_successful = $false
 $error_message = ''
 $date = Get-Date
+$temp_dir = $devtools_dir + ".temp\"
 if ($temp_dir | Test-Path) {
     Remove-Item -Recurse -Path $temp_dir
 }
@@ -34,8 +35,37 @@ if ($KIT -and !($kit_dir | Test-Path)){
 
 function New-Meeting {
     try {
+        Write-Host "~~~ Loading Meeting Notes ~~~" -ForegroundColor DarkGreen
 
-        # <meeting logic>
+        $today_dir = "$notes_dir\$($date.ToString("yyyy"))\$($date.ToString("MM-MMMM"))\$($date.ToString("dd-dddd"))"
+        if (!($today_dir | Test-Path)){
+            $null = New-Item -Path $today_dir -ItemType Directory
+        }
+        $today_dir = $today_dir | Resolve-Path
+
+
+        # Copy kit notes into temp
+        $null = Copy-Item "$devtools_dir/templates/meeting_note/*" $temp_dir -Recurse
+        
+        # # Define values to replace
+        $placeholders = @(
+            @{  Tag = '{{ TIME STAMP }}';   Inplace = "$($date.ToString("yyyy-MM-dd_hh-mm-ss"))";   },
+            @{  Tag = '{{ LONG DATE }}';    Inplace = "$($date.ToString("dddd, d MMM yyyy"))";      }
+        )
+
+
+        Write-Host "  - Replacing placeholder filenames..." -ForegroundColor Cyan
+        foreach ($placeholder in $placeholders) {
+            Replace-FileNames -Path $temp_dir -Recurse -Find $placeholder.Tag -Replace $placeholder.Inplace
+        }
+
+        Write-Host "  - Populating previous info..." -ForegroundColor Cyan
+        foreach ($placeholder in $placeholders) {
+            Replace-FileContents -Path $temp_dir -Recurse -Find $placeholder.Tag -Replace $placeholder.Inplace
+        }
+
+        # Move transformed files to their required directory
+        Copy-Item "$temp_dir/*" $today_dir
 
         $is_successful = $true
     }
@@ -46,8 +76,11 @@ function New-Meeting {
         Remove-Item -Recurse $temp_dir
         if ($is_successful) {
             Write-Host "  - Opening notes" -ForegroundColor Cyan
-            # Removed VSCode process until note generated
-            # $null = code 
+            try { $null = code $today_dir "$today_dir\$($date.ToString("yyyy-MM-dd_hh-mm-ss")).md" }
+            catch { 
+                Write-Host "VSCode is not available, file generated at:"
+                Write-Host "$today_dir\$($date.ToString("yyyy-MM-dd_hh-mm-ss")).md"
+            }
             Write-Host "Done!" -ForegroundColor Green
         }
         else {
@@ -65,7 +98,7 @@ function New-KIT {
         Write-Host "~~~ Loading Meeting Notes ~~~" -ForegroundColor DarkGreen
 
         # Copy kit notes into temp
-        $null = Copy-Item "$devtools_dir/env_templates/kit_note/*" $temp_dir -Recurse
+        $null = Copy-Item "$devtools_dir/templates/kit_note/*" $temp_dir -Recurse
 
         # Show team member selection interface
         Write-Host "Team Members:" -ForegroundColor Yellow
@@ -91,45 +124,30 @@ function New-KIT {
         # Find information from the most recent kit 
         # And extract it into the new one
         Write-Host "  - Extracting information from last meeting..." -ForegroundColor Cyan
-        $regex = "### Check-in`n((?:.*`n)*)`n## Goals`n((?:.*`n)*)`n## Actions`n(?:(?:.*`n)*)`n### New Actions`n((?:.*`n*)*)"
+        $regex = "### Check-in`n((?:.*`n)*)`n## Goals`n((?:.*`n)*)`n## Actions`n(?:(?:.*`n)*)`n### Actions`n((?:.*`n*)*)"
         $data =  [string]::Join("`n", (Get-Content -Path $most_recent_kit.FullName))
         $match = $data | Select-String -Pattern $regex
 
         # Define values to replace
         $placeholders = @(
-            @{ Tag = '{{ SHORT DATE }}'; Inplace = "$($date.ToString("yyyy-MM-dd"))"; },
-            @{ Tag = '{{ LONG DATE }}'; Inplace = "$($date.ToString("dddd, d MMM yyyy"))"; },
-            @{ Tag = '{{ TEAM MEMBER }}'; Inplace = "$team_member"; },
-            @{ Tag = '{{ LAST WE SPOKE }}'; Inplace = $match.Matches[0].Groups[1].Value.Trim(); },
-            @{ Tag = '{{ GOALS }}'; Inplace = $match.Matches[0].Groups[2].Value.Trim(); },
-            @{ Tag = '{{ PROPOSED ACTIONS }}'; Inplace = $match.Matches[0].Groups[3].Value.Trim(); }
+            @{  Tag = '{{ SHORT DATE }}';        Inplace = "$($date.ToString("yyyy-MM-dd"))";           },
+            @{  Tag = '{{ TIME STAMP }}';        Inplace = "$($date.ToString("yyyy-MM-dd_hh-mm-ss"))";  },
+            @{  Tag = '{{ LONG DATE }}';         Inplace = "$($date.ToString("dddd, d MMM yyyy"))";     },
+            @{  Tag = '{{ TEAM MEMBER }}';       Inplace = "$team_member";                              },
+            @{  Tag = '{{ LAST WE SPOKE }}';     Inplace = $match.Matches[0].Groups[1].Value.Trim();    },
+            @{  Tag = '{{ GOALS }}';             Inplace = $match.Matches[0].Groups[2].Value.Trim();    },
+            @{  Tag = '{{ PROPOSED ACTIONS }}';  Inplace = $match.Matches[0].Groups[3].Value.Trim();    }
         )
 
         Write-Host "  - Replacing placeholder filenames..." -ForegroundColor Cyan
-        # For each path
-        Get-ChildItem -Recurse "$temp_dir/*" | ForEach-Object { $_path = $_
-            # And every placeholder value
-            $placeholders | ForEach-Object { $_placeholder = $_
-                # Check the name of the file
-                if ($_path -match $_placeholder.Tag){
-                    # And replace any of that placeholder value in the name
-                    Rename-Item -Path $_path.FullName -NewName "$_path".Replace($_placeholder.Tag, $_placeholder.Inplace)
-
-                    #TODO: Probably wont work if needs more than one placeholder
-        }}}
+        foreach ($placeholder in $placeholders) {
+            Replace-FileNames -Path $temp_dir -Recurse -Find $placeholder.Tag -Replace $placeholder.Inplace
+        }
 
         Write-Host "  - Populating previous info..." -ForegroundColor Cyan
-        # For each path
-        Get-ChildItem -Recurse "$temp_dir/*" | ForEach-Object { $_path = $_
-            # And every placeholder value
-            $placeholders | ForEach-Object { $_placeholder = $_
-                # if the file_path is not a directory
-                if (Test-Path -Path $_path.FullName -PathType Leaf) {
-                    # or an empty value
-                    if ($null -ne (Get-Content $_path.FullName)) {
-                        # Then replace any of that placeholder value in the file content
-                        (Get-Content $_path.FullName).Replace($_placeholder.Tag, $_placeholder.Inplace) | Set-Content $_path.FullName
-        }}}}
+        foreach ($placeholder in $placeholders) {
+            Replace-FileContents -Path $temp_dir -Recurse -Find $placeholder.Tag -Replace $placeholder.Inplace
+        }
 
         # Move transformed files to their required directory
         Copy-Item "$temp_dir/*" "$kit_dir/$team_member"
@@ -146,11 +164,11 @@ function New-KIT {
     finally {
         Write-Host "  - Restoring..." -ForegroundColor Cyan
         $children = Get-ChildItem $temp_dir -Recurse
-        $children | % {Write-Host "      $_ Removed" -ForegroundColor DarkCyan}
         Remove-Item -Recurse $temp_dir
         if ($is_successful) {
             Write-Host "  - Opening notes" -ForegroundColor Cyan
-            $null = code "$kit_dir/$team_member" $most_recent_kit.FullName
+            try {$null = code "$kit_dir/$team_member" $most_recent_kit.FullName}
+            catch { Write-Host "VSCode is not available, file generated at:`n$($most_recent_kit.FullName)"}
             Write-Host "Done!" -ForegroundColor Green
         }
         else {
@@ -169,37 +187,23 @@ function New-TeamMember {
     
     # Define values to replace
     $placeholders = @(
-        @{ Tag = '{{ SHORT DATE }}'; Inplace = "$($date.ToString("yyyy-MM-dd"))"; },
-        @{ Tag = '{{ LONG DATE }}'; Inplace = "$($date.ToString("dddd, d MMM yyyy"))"; },
-        @{ Tag = '{{ TEAM MEMBER }}'; Inplace = "$team_member"; },
-        @{ Tag = '{{ LAST WE SPOKE }}'; Inplace = "- "; },
-        @{ Tag = '{{ GOALS }}'; Inplace = "- "; },
-        @{ Tag = '{{ PROPOSED ACTIONS }}'; Inplace = "- "; }
+        @{  Tag = '{{ SHORT DATE }}';        Inplace = "$($date.ToString("yyyy-MM-dd"))";       },
+        @{  Tag = '{{ LONG DATE }}';         Inplace = "$($date.ToString("dddd, d MMM yyyy"))"; },
+        @{  Tag = '{{ TEAM MEMBER }}';       Inplace = "$team_member";                          },
+        @{  Tag = '{{ LAST WE SPOKE }}';     Inplace = "- ";                                    },
+        @{  Tag = '{{ GOALS }}';             Inplace = "- ";                                    },
+        @{  Tag = '{{ PROPOSED ACTIONS }}';  Inplace = "- ";                                    }
     )
 
     Write-Host "  - Replacing placeholder filenames..." -ForegroundColor Cyan
-    # For each path
-    Get-ChildItem -Recurse "$temp_dir/*" | ForEach-Object { $_path = $_
-        # And every placeholder value
-        $placeholders | ForEach-Object { $_placeholder = $_
-            # Check the name of the file
-            if ($_path -match $_placeholder.Tag){
-                # And replace any of that placeholder value in the name
-                Rename-Item -Path $_path.FullName -NewName "$_path".Replace($_placeholder.Tag, $_placeholder.Inplace)
-    }}}
+    foreach ($placeholder in $placeholders) {
+        Replace-FileNames -Path $temp_dir -Recurse -Find $placeholder.Tag -Replace $placeholder.Inplace
+    }
 
     Write-Host "  - Populating previous info..." -ForegroundColor Cyan
-    # For each path
-    Get-ChildItem -Recurse "$temp_dir/*" | ForEach-Object { $_path = $_
-        # And every placeholder value
-        $placeholders | ForEach-Object { $_placeholder = $_
-            # if the file_path is not a directory
-            if (Test-Path -Path $_path.FullName -PathType Leaf) {
-                # or an empty value
-                if ($null -ne (Get-Content $_path.FullName)) {
-                    # Then replace any of that placeholder value in the file content
-                    (Get-Content $_path.FullName).Replace($_placeholder.Tag, $_placeholder.Inplace) | Set-Content $_path.FullName
-    }}}}
+    foreach ($placeholder in $placeholders) {
+        Replace-FileContents -Path $temp_dir -Recurse -Find $placeholder.Tag -Replace $placeholder.Inplace
+    }
 
     # Move transformed files to their required directory
     Copy-Item "$temp_dir/*" "$kit_dir/$team_member"
@@ -207,6 +211,65 @@ function New-TeamMember {
     # Reassess most recent meeting
     $most_recent_kit = (Get-ChildItem "$kit_dir/$team_member" | Sort-Object -Descending)[0]
     $is_successful = $true
+}
+
+function New-Daily {
+    try {
+        Write-Host "~~~ Loading Meeting Notes ~~~" -ForegroundColor DarkGreen
+
+        $today_dir = "$notes_dir\$($date.ToString("yyyy"))\$($date.ToString("MM-MMMM"))\$($date.ToString("dd-dddd"))"
+        if (!($today_dir | Test-Path)){
+            $null = New-Item -Path $today_dir -ItemType Directory
+        }
+        $today_dir = $today_dir | Resolve-Path
+
+
+        # Copy kit notes into temp
+        $null = Copy-Item "$devtools_dir/templates/daily_note/*" $temp_dir -Recurse
+        
+        # # Define values to replace
+        $placeholders = @(
+            @{  Tag = '{{ TIME STAMP }}';    Inplace = "$($date.ToString("yyyy-MM-dd_hh-mm-ss"))";   },
+            @{  Tag = '{{ LONG DATE }}';     Inplace = "$($date.ToString("dddd, d MMM yyyy"))";      }
+        )
+
+        Write-Host "  - Replacing placeholder filenames..." -ForegroundColor Cyan
+        foreach ($placeholder in $placeholders) {
+            Replace-FileNames -Path $temp_dir -Recurse -Find $placeholder.Tag -Replace $placeholder.Inplace
+        }
+    
+        Write-Host "  - Populating previous info..." -ForegroundColor Cyan
+        foreach ($placeholder in $placeholders) {
+            Replace-FileContents -Path $temp_dir -Recurse -Find $placeholder.Tag -Replace $placeholder.Inplace
+        }
+
+        # Move transformed files to their required directory
+        Copy-Item "$temp_dir/*" $today_dir
+
+        $is_successful = $true
+    }
+    catch {
+        $error_message = $Error[0].Exception.Message
+    }
+    finally {
+        Remove-Item -Recurse $temp_dir
+        if ($is_successful) {
+            Write-Host "  - Opening notes" -ForegroundColor Cyan
+            try { $null = code $today_dir "$today_dir\$($date.ToString("yyyy-MM-dd_hh-mm-ss")) - Daily Notes.md" }
+            catch { 
+                Write-Host "VSCode is not available, file generated at:"
+                Write-Host "$today_dir\$($date.ToString("yyyy-MM-dd_hh-mm-ss")) - Daily Notes.md"
+            }
+            Write-Host "Done!" -ForegroundColor Green
+        }
+        else {
+            Write-Host "  - Restoring..." -ForegroundColor Cyan
+            if (!$error_message) { 
+                $error_message = "An unknown error occurred"
+            }
+            Write-Warning -Message "$error_message"
+        }
+    }
 }
 
 function Show-Help {
@@ -227,17 +290,21 @@ Parameter flags can be supplied with the command to adjust the script's behaviou
         [PSCustomObject]@{ 
             Flag = '-KIT, -k'; 
             Description = 'Generate keeping-in-touch meeting notes';
+        },
+        [PSCustomObject]@{ 
+            Flag = '-Daily, -d'; 
+            Description = 'Generate daily notes';
         }
     ) | Format-Table
     
     Write-Output $table
-    Write-Host "In the script itself there are a series of config options that can be changed if they are not aligned with the system."
+    Write-Host "In the script itself there are a series of config options that can be adjusted in a .dtconfig file.."
     $table = @(
         [PSCustomObject]@{
-            Config = '$meeting_dir';
-            Description = 'Directory for development environments';
-            Value = "$meeting_dir";
-            Default = '~\Documents\Notes\Meeting Notes\';
+            Config = '$notes_dir';
+            Description = 'Directory for notes';
+            Value = "$notes_dir";
+            Default = '~\Documents\Notes\';
         },
         [PSCustomObject]@{
             Config = '$kit_dir';
@@ -256,6 +323,7 @@ switch ($true) {
     $Version { Write-Host $version_number }
     $Help { Show-Help }
     $KIT { New-KIT }
+    $Daily { New-Daily }
     Default { New-Meeting }
 }
 

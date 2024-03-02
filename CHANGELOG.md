@@ -4,6 +4,44 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+<!-- Added -->
+<!-- Changed -->
+<!-- Deprecated -->
+<!-- Fixed -->
+<!-- Removed -->
+<!-- Security Changes -->
+
+## [0.2.0] - 2024-03-02
+### Added
+- Meeting - `-d -daily` flag for making daily notes files.
+- Meeting - Daily notes template file.
+- Meeting - Individual meeting notes template file.
+- Profile - `Time-Stamp` PowerShell function added to command set.
+- Title Notes - A command to rename note files to have suitable titles.
+- Title Notes - Filters meeting titles and appends them to their timestamp names.
+- Config file to build user environment variables.
+- Template config file for reference.
+- Configuration instructions in the readme.
+- Actions script.
+- Actions - A command to manage existing actions created in notes files.
+- Actions - Stores state of all actions in `.dev-tools/.dtactions` file.
+- Actions - Shows all unfinished actions.
+- Actions - Close function moves actions from active to closed.
+- Replace-FileContents function to find and replace text recursively in a directory.
+- Replace-FileNames function to find and replace file names recursively in a directory.
+
+### Changed
+- Meeting - Keeping in Touch meeting heading now simply 'Keeping in Touch' instead of team member name.
+- Meeting - Keeping in Touch meeting heading now formatted in italics.
+- Meeting - Notes are stored in directories according to year, month and day that they were generated.
+- Meeting - Replace scripts are now reusable and global.
+- Commands pull configuration from config file not environment variables.
+
+### Fixed 
+- Meeting - Creates meeting notes when no flag provided.
+- Template directory now named appropriately `templates/`.
+- Conform keeping in touch generation to have full time stamps in line with the Title-Notes command.
+- Conform keeping in touch actions heading to match the actions command.
 
 
 ## [0.1.3] - 2024-01-30
