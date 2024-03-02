@@ -1,6 +1,6 @@
 <!-- / © Copyright 2024 Frankie Homewood <F.Homewood@outlook.com> -->
 
-# Developer Tools v.0.1.3 [_Rugged Coast_](https://github.com/FHomewood/dev-tools/releases/tag/v0.1.3)
+# Developer Tools v.0.2.0 [_Jubilant Ascent_](https://github.com/FHomewood/dev-tools/releases/tag/v0.2.0)
 
 A dot-files style repository intended to store all windows PowerShell scripts, bash scripts and dotfiles for ease of development and automation of workflow.
 
@@ -15,7 +15,7 @@ Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw
 ```
 In cases where the machine's security policy does not allow adjustments to the SecurityProtocol or ExecutionPolicy then a direct download is available through the most recent release.
 #### Download link
-<a href="https://github.com/FHomewood/dev-tools/releases/download/v0.1.2/devtools_v0_1_3_rugged_coast.ps1">
+<a href="https://github.com/FHomewood/dev-tools/releases/download/v0.1.2/devtools_v0_2_0_jubilant_ascent.ps1">
     <button>
         Download
     </button>
