@@ -26,6 +26,7 @@ All notable changes to this project will be documented in this file.
 - Meeting - Keeping in Touch meeting heading now simply 'Keeping in Touch' instead of team member name.
 - Meeting - Keeping in Touch meeting heading now formatted in italics.
 - Meeting - Notes are stored in directories according to year, month and day that they were generated.
+- Meeting - Replace scripts are now reusable and global.
 - Commands pull configuration from config file not environment variables.
 
 ### Fixed 
