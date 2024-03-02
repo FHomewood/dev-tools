@@ -35,3 +35,32 @@ function Load-Config {
         Set-Content env:\$name $value
     }
 }
+
+
+function Replace-FileContents {
+    [CmdletBinding()]
+    param ([string] $Path, [string] $Find, [string] $Replace, [switch] $Recurse)
+    
+    begin {
+        if (!(Test-Path -Path $Path)) {Write-Error "Could not resolve path $Path"}
+        if ($Find.Length -le 0) {Write-Error "Find '$Find' has length 0"}
+        if ($Replace.Length -le 0) {Write-Error "Replace '$Replace' has length 0"}
+    }
+    
+    process {
+        $file_path = Resolve-Path -Path $Path
+        $files = Get-ChildItem $file_path 
+        if ($Recurse) { $files = $files | Get-ChildItem -Recurse}
+        foreach ($file in $files) {
+            if ((Test-Path -Path $file.FullName -PathType Leaf) -eq $False) { continue; }
+            $file_content = (Get-Content $file.FullName)
+            if ($null -eq $file_content) { continue; }
+            if (!($file_content -match $Find)) { continue; }
+            $new_file_content = $file_content.Replace($Find, $Replace)
+            Set-Content -Path $file.FullName -Value $new_file_content
+        }
+    }
+    
+    end {        
+    }
+}
