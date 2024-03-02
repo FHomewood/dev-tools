@@ -19,11 +19,14 @@ All notable changes to this project will be documented in this file.
 - Actions - Stores state of all actions in `.dev-tools/.dtactions` file.
 - Actions - Shows all unfinished actions.
 - Actions - Close function moves actions from active to closed.
+- Replace-FileContents function to find and replace text recursively in a directory.
+- Replace-FileNames function to find and replace file names recursively in a directory.
 
 ### Changed
 - Meeting - Keeping in Touch meeting heading now simply 'Keeping in Touch' instead of team member name.
 - Meeting - Keeping in Touch meeting heading now formatted in italics.
 - Meeting - Notes are stored in directories according to year, month and day that they were generated.
+- Meeting - Replace scripts are now reusable and global.
 - Commands pull configuration from config file not environment variables.
 
 ### Fixed 

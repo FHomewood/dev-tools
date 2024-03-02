@@ -55,30 +55,14 @@ function New-Meeting {
 
 
         Write-Host "  - Replacing placeholder filenames..." -ForegroundColor Cyan
-        # For each path
-        Get-ChildItem -Recurse "$temp_dir/*" | ForEach-Object { $_path = $_
-            # And every placeholder value
-            $placeholders | ForEach-Object { $_placeholder = $_
-                # Check the name of the file
-                if ($_path -match $_placeholder.Tag){
-                    # And replace any of that placeholder value in the name
-                    Rename-Item -Path $_path.FullName -NewName "$_path".Replace($_placeholder.Tag, $_placeholder.Inplace)
-
-                    #TODO: Probably wont work if needs more than one placeholder
-        }}}
+        foreach ($placeholder in $placeholders) {
+            Replace-FileNames -Path $temp_dir -Recurse -Find $placeholder.Tag -Replace $placeholder.Inplace
+        }
 
         Write-Host "  - Populating previous info..." -ForegroundColor Cyan
-        # For each path
-        Get-ChildItem -Recurse "$temp_dir/*" | ForEach-Object { $_path = $_
-            # And every placeholder value
-            $placeholders | ForEach-Object { $_placeholder = $_
-                # if the file_path is not a directory
-                if (Test-Path -Path $_path.FullName -PathType Leaf) {
-                    # or an empty value
-                    if ($null -ne (Get-Content $_path.FullName)) {
-                        # Then replace any of that placeholder value in the file content
-                        (Get-Content $_path.FullName).Replace($_placeholder.Tag, $_placeholder.Inplace) | Set-Content $_path.FullName
-        }}}}
+        foreach ($placeholder in $placeholders) {
+            Replace-FileContents -Path $temp_dir -Recurse -Find $placeholder.Tag -Replace $placeholder.Inplace
+        }
 
         # Move transformed files to their required directory
         Copy-Item "$temp_dir/*" $today_dir
@@ -156,30 +140,14 @@ function New-KIT {
         )
 
         Write-Host "  - Replacing placeholder filenames..." -ForegroundColor Cyan
-        # For each path
-        Get-ChildItem -Recurse "$temp_dir/*" | ForEach-Object { $_path = $_
-            # And every placeholder value
-            $placeholders | ForEach-Object { $_placeholder = $_
-                # Check the name of the file
-                if ($_path -match $_placeholder.Tag){
-                    # And replace any of that placeholder value in the name
-                    Rename-Item -Path $_path.FullName -NewName "$_path".Replace($_placeholder.Tag, $_placeholder.Inplace)
-
-                    #TODO: Probably wont work if needs more than one placeholder
-        }}}
+        foreach ($placeholder in $placeholders) {
+            Replace-FileNames -Path $temp_dir -Recurse -Find $placeholder.Tag -Replace $placeholder.Inplace
+        }
 
         Write-Host "  - Populating previous info..." -ForegroundColor Cyan
-        # For each path
-        Get-ChildItem -Recurse "$temp_dir/*" | ForEach-Object { $_path = $_
-            # And every placeholder value
-            $placeholders | ForEach-Object { $_placeholder = $_
-                # if the file_path is not a directory
-                if (Test-Path -Path $_path.FullName -PathType Leaf) {
-                    # or an empty value
-                    if ($null -ne (Get-Content $_path.FullName)) {
-                        # Then replace any of that placeholder value in the file content
-                        (Get-Content $_path.FullName).Replace($_placeholder.Tag, $_placeholder.Inplace) | Set-Content $_path.FullName
-        }}}}
+        foreach ($placeholder in $placeholders) {
+            Replace-FileContents -Path $temp_dir -Recurse -Find $placeholder.Tag -Replace $placeholder.Inplace
+        }
 
         # Move transformed files to their required directory
         Copy-Item "$temp_dir/*" "$kit_dir/$team_member"
