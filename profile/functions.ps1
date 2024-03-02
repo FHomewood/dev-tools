@@ -36,6 +36,12 @@ function Load-Config {
     }
 }
 
+function Write-Debug {
+    param(
+        $string
+    )
+    Write-Host -ForegroundColor Magenta "DEBUG | $string"
+}
 
 function Replace-FileContents {
     [CmdletBinding()]
@@ -60,6 +66,33 @@ function Replace-FileContents {
             Set-Content -Path $file.FullName -Value $new_file_content
         }
     }
+    
+    end {        
+    }
+}
+
+function Replace-FileNames {
+    [CmdletBinding()]
+    param ([string] $Path, [string] $Find, [string] $Replace, [switch] $Recurse)
+    
+    begin {
+        if (!(Test-Path -Path $Path)) {Write-Error "Could not resolve path $Path"}
+        if ($Find.Length -le 0) {Write-Error "Find '$Find' has length 0"}
+        if ($Replace.Length -le 0) {Write-Error "Replace '$Replace' has length 0"}
+    }
+    
+    process {
+        $file_path = Resolve-Path -Path $Path
+        $files = Get-ChildItem $file_path 
+        if ($Recurse) { $files = $files | Get-ChildItem -Recurse}
+        foreach ($file in $files) {
+            $file_name = "$($file.BaseName)$($file.Extension)"
+            if (!($file_name  -match $Find)) { continue; }
+            $new_file_name = $file_name.Replace($Find, $Replace)
+            Rename-Item -Path $($file.FullName) -NewName $new_file_name
+        }
+    }
+
     
     end {        
     }
