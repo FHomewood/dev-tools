@@ -21,7 +21,7 @@ function Assign-Profile {
 }
 
 function Time-Stamp {
-    Write-Host (Get-Date).ToString("yyyy-MM-dd_hh-mm-ss")
+    Write-Output (Get-Date).ToString("yyyy-MM-dd_hh-mm-ss")
 }
 
 function Load-Config {
@@ -40,6 +40,7 @@ function Write-Debug {
     param(
         $string
     )
+
     Write-Host -ForegroundColor Magenta "DEBUG | $string"
 }
 
@@ -52,7 +53,6 @@ function Replace-FileContents {
         if ($Find.Length -le 0) {Write-Error "Find '$Find' has length 0"}
         if ($Replace.Length -le 0) {Write-Error "Replace '$Replace' has length 0"}
     }
-    
     process {
         $file_path = Resolve-Path -Path $Path
         $files = Get-ChildItem $file_path 
@@ -66,9 +66,6 @@ function Replace-FileContents {
             Set-Content -Path $file.FullName -Value $new_file_content
         }
     }
-    
-    end {        
-    }
 }
 
 function Replace-FileNames {
@@ -80,7 +77,6 @@ function Replace-FileNames {
         if ($Find.Length -le 0) {Write-Error "Find '$Find' has length 0"}
         if ($Replace.Length -le 0) {Write-Error "Replace '$Replace' has length 0"}
     }
-    
     process {
         $file_path = Resolve-Path -Path $Path
         $files = Get-ChildItem $file_path 
@@ -92,8 +88,23 @@ function Replace-FileNames {
             Rename-Item -Path $($file.FullName) -NewName $new_file_name
         }
     }
+}
 
+function Add-EndLines {
+    [CmdletBinding()]
+    param ([string] $Path)
     
-    end {        
+    begin {
+        if (!(Test-Path -Path $Path)) {Write-Error "Could not resolve path $Path"}
+    }
+    process {
+        $file_path = Resolve-Path -Path $Path
+        $files = Get-ChildItem $file_path | Get-ChildItem -Recurse
+        foreach ($file in $files) {
+            if ((Test-Path -Path $file.FullName -PathType Leaf) -eq $False) { continue; }
+            $file_content = (Get-Content $file.FullName)
+            if ($null -eq $file_content) { continue; }
+            Set-Content -Path $file.FullName -Value $file_content
+        }
     }
 }

@@ -49,8 +49,8 @@ function New-Meeting {
         
         # # Define values to replace
         $placeholders = @(
-            @{ Tag = '{{ TIME STAMP }}'; Inplace = "$($date.ToString("yyyy-MM-dd_hh-mm-ss"))"; },
-            @{ Tag = '{{ LONG DATE }}'; Inplace = "$($date.ToString("dddd, d MMM yyyy"))"; }
+            @{  Tag = '{{ TIME STAMP }}';   Inplace = "$($date.ToString("yyyy-MM-dd_hh-mm-ss"))";   },
+            @{  Tag = '{{ LONG DATE }}';    Inplace = "$($date.ToString("dddd, d MMM yyyy"))";      }
         )
 
 
@@ -124,19 +124,19 @@ function New-KIT {
         # Find information from the most recent kit 
         # And extract it into the new one
         Write-Host "  - Extracting information from last meeting..." -ForegroundColor Cyan
-        $regex = "### Check-in`n((?:.*`n)*)`n## Goals`n((?:.*`n)*)`n## Actions`n(?:(?:.*`n)*)`n### New Actions`n((?:.*`n*)*)"
+        $regex = "### Check-in`n((?:.*`n)*)`n## Goals`n((?:.*`n)*)`n## Actions`n(?:(?:.*`n)*)`n### Actions`n((?:.*`n*)*)"
         $data =  [string]::Join("`n", (Get-Content -Path $most_recent_kit.FullName))
         $match = $data | Select-String -Pattern $regex
 
         # Define values to replace
         $placeholders = @(
-            @{ Tag = '{{ SHORT DATE }}'; Inplace = "$($date.ToString("yyyy-MM-dd"))"; },
-            @{ Tag = '{{ TIME STAMP }}'; Inplace = "$($date.ToString("yyyy-MM-dd_hh-mm-ss"))"; },
-            @{ Tag = '{{ LONG DATE }}'; Inplace = "$($date.ToString("dddd, d MMM yyyy"))"; },
-            @{ Tag = '{{ TEAM MEMBER }}'; Inplace = "$team_member"; },
-            @{ Tag = '{{ LAST WE SPOKE }}'; Inplace = $match.Matches[0].Groups[1].Value.Trim(); },
-            @{ Tag = '{{ GOALS }}'; Inplace = $match.Matches[0].Groups[2].Value.Trim(); },
-            @{ Tag = '{{ PROPOSED ACTIONS }}'; Inplace = $match.Matches[0].Groups[3].Value.Trim(); }
+            @{  Tag = '{{ SHORT DATE }}';        Inplace = "$($date.ToString("yyyy-MM-dd"))";           },
+            @{  Tag = '{{ TIME STAMP }}';        Inplace = "$($date.ToString("yyyy-MM-dd_hh-mm-ss"))";  },
+            @{  Tag = '{{ LONG DATE }}';         Inplace = "$($date.ToString("dddd, d MMM yyyy"))";     },
+            @{  Tag = '{{ TEAM MEMBER }}';       Inplace = "$team_member";                              },
+            @{  Tag = '{{ LAST WE SPOKE }}';     Inplace = $match.Matches[0].Groups[1].Value.Trim();    },
+            @{  Tag = '{{ GOALS }}';             Inplace = $match.Matches[0].Groups[2].Value.Trim();    },
+            @{  Tag = '{{ PROPOSED ACTIONS }}';  Inplace = $match.Matches[0].Groups[3].Value.Trim();    }
         )
 
         Write-Host "  - Replacing placeholder filenames..." -ForegroundColor Cyan
@@ -187,37 +187,23 @@ function New-TeamMember {
     
     # Define values to replace
     $placeholders = @(
-        @{ Tag = '{{ SHORT DATE }}'; Inplace = "$($date.ToString("yyyy-MM-dd"))"; },
-        @{ Tag = '{{ LONG DATE }}'; Inplace = "$($date.ToString("dddd, d MMM yyyy"))"; },
-        @{ Tag = '{{ TEAM MEMBER }}'; Inplace = "$team_member"; },
-        @{ Tag = '{{ LAST WE SPOKE }}'; Inplace = "- "; },
-        @{ Tag = '{{ GOALS }}'; Inplace = "- "; },
-        @{ Tag = '{{ PROPOSED ACTIONS }}'; Inplace = "- "; }
+        @{  Tag = '{{ SHORT DATE }}';        Inplace = "$($date.ToString("yyyy-MM-dd"))";       },
+        @{  Tag = '{{ LONG DATE }}';         Inplace = "$($date.ToString("dddd, d MMM yyyy"))"; },
+        @{  Tag = '{{ TEAM MEMBER }}';       Inplace = "$team_member";                          },
+        @{  Tag = '{{ LAST WE SPOKE }}';     Inplace = "- ";                                    },
+        @{  Tag = '{{ GOALS }}';             Inplace = "- ";                                    },
+        @{  Tag = '{{ PROPOSED ACTIONS }}';  Inplace = "- ";                                    }
     )
 
     Write-Host "  - Replacing placeholder filenames..." -ForegroundColor Cyan
-    # For each path
-    Get-ChildItem -Recurse "$temp_dir/*" | ForEach-Object { $_path = $_
-        # And every placeholder value
-        $placeholders | ForEach-Object { $_placeholder = $_
-            # Check the name of the file
-            if ($_path -match $_placeholder.Tag){
-                # And replace any of that placeholder value in the name
-                Rename-Item -Path $_path.FullName -NewName "$_path".Replace($_placeholder.Tag, $_placeholder.Inplace)
-    }}}
+    foreach ($placeholder in $placeholders) {
+        Replace-FileNames -Path $temp_dir -Recurse -Find $placeholder.Tag -Replace $placeholder.Inplace
+    }
 
     Write-Host "  - Populating previous info..." -ForegroundColor Cyan
-    # For each path
-    Get-ChildItem -Recurse "$temp_dir/*" | ForEach-Object { $_path = $_
-        # And every placeholder value
-        $placeholders | ForEach-Object { $_placeholder = $_
-            # if the file_path is not a directory
-            if (Test-Path -Path $_path.FullName -PathType Leaf) {
-                # or an empty value
-                if ($null -ne (Get-Content $_path.FullName)) {
-                    # Then replace any of that placeholder value in the file content
-                    (Get-Content $_path.FullName).Replace($_placeholder.Tag, $_placeholder.Inplace) | Set-Content $_path.FullName
-    }}}}
+    foreach ($placeholder in $placeholders) {
+        Replace-FileContents -Path $temp_dir -Recurse -Find $placeholder.Tag -Replace $placeholder.Inplace
+    }
 
     # Move transformed files to their required directory
     Copy-Item "$temp_dir/*" "$kit_dir/$team_member"
@@ -243,36 +229,19 @@ function New-Daily {
         
         # # Define values to replace
         $placeholders = @(
-            @{ Tag = '{{ TIME STAMP }}'; Inplace = "$($date.ToString("yyyy-MM-dd_hh-mm-ss"))"; },
-            @{ Tag = '{{ LONG DATE }}'; Inplace = "$($date.ToString("dddd, d MMM yyyy"))"; }
+            @{  Tag = '{{ TIME STAMP }}';    Inplace = "$($date.ToString("yyyy-MM-dd_hh-mm-ss"))";   },
+            @{  Tag = '{{ LONG DATE }}';     Inplace = "$($date.ToString("dddd, d MMM yyyy"))";      }
         )
 
-
         Write-Host "  - Replacing placeholder filenames..." -ForegroundColor Cyan
-        # For each path
-        Get-ChildItem -Recurse "$temp_dir/*" | ForEach-Object { $_path = $_
-            # And every placeholder value
-            $placeholders | ForEach-Object { $_placeholder = $_
-                # Check the name of the file
-                if ($_path -match $_placeholder.Tag){
-                    # And replace any of that placeholder value in the name
-                    Rename-Item -Path $_path.FullName -NewName "$_path".Replace($_placeholder.Tag, $_placeholder.Inplace)
-
-                    #TODO: Probably wont work if needs more than one placeholder
-        }}}
-
+        foreach ($placeholder in $placeholders) {
+            Replace-FileNames -Path $temp_dir -Recurse -Find $placeholder.Tag -Replace $placeholder.Inplace
+        }
+    
         Write-Host "  - Populating previous info..." -ForegroundColor Cyan
-        # For each path
-        Get-ChildItem -Recurse "$temp_dir/*" | ForEach-Object { $_path = $_
-            # And every placeholder value
-            $placeholders | ForEach-Object { $_placeholder = $_
-                # if the file_path is not a directory
-                if (Test-Path -Path $_path.FullName -PathType Leaf) {
-                    # or an empty value
-                    if ($null -ne (Get-Content $_path.FullName)) {
-                        # Then replace any of that placeholder value in the file content
-                        (Get-Content $_path.FullName).Replace($_placeholder.Tag, $_placeholder.Inplace) | Set-Content $_path.FullName
-        }}}}
+        foreach ($placeholder in $placeholders) {
+            Replace-FileContents -Path $temp_dir -Recurse -Find $placeholder.Tag -Replace $placeholder.Inplace
+        }
 
         # Move transformed files to their required directory
         Copy-Item "$temp_dir/*" $today_dir

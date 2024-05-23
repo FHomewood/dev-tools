@@ -7,7 +7,8 @@ try { . $PSScriptRoot\prompt.ps1; } catch { Write-Host "Couldn't source dev-tool
 
 $env:VIRTUAL_ENV_DISABLE_PROMPT = 1
 
-Load-Config
+try { Load-Config; }
+catch { Write-Host "Couldn't load dev-tools config" }
 
 if ('./.venv/scripts/activate' | Test-Path) { 
     try{ Activate-VEnv; }
