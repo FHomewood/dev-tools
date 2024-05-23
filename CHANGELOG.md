@@ -4,6 +4,14 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+<!-- Added -->
+<!-- Changed -->
+<!-- Deprecated -->
+<!-- Fixed -->
+<!-- Removed -->
+<!-- Security Changes -->
+
+## [0.2.0] - 2024-03-02
 ### Added
 - Meeting - `-d -daily` flag for making daily notes files.
 - Meeting - Daily notes template file.
@@ -14,7 +22,7 @@ All notable changes to this project will be documented in this file.
 - Config file to build user environment variables.
 - Template config file for reference.
 - Configuration instructions in the readme.
-- Actions script
+- Actions script.
 - Actions - A command to manage existing actions created in notes files.
 - Actions - Stores state of all actions in `.dev-tools/.dtactions` file.
 - Actions - Shows all unfinished actions.
