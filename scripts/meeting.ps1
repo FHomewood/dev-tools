@@ -224,10 +224,10 @@ function New-Daily {
         $today_dir = $today_dir | Resolve-Path
 
 
-        # Copy kit notes into temp
+        # Copy daily notes into temp
         $null = Copy-Item "$devtools_dir/templates/daily_note/*" $temp_dir -Recurse
         
-        # # Define values to replace
+        # Define values to replace
         $placeholders = @(
             @{  Tag = '{{ TIME STAMP }}';    Inplace = "$($date.ToString("yyyy-MM-dd_hh-mm-ss"))";   },
             @{  Tag = '{{ LONG DATE }}';     Inplace = "$($date.ToString("dddd, d MMM yyyy"))";      }
