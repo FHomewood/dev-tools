@@ -25,4 +25,4 @@ dev = [
 # dev-tools = "dev_tools.dev-tools:cli"
 meeting = "dev_tools.meeting:cli"
 # newenv = "dev_tools.newenv:cli"
-# title-notes = "dev_tools.title-notes:cli"
+title-notes = "dev_tools.title-notes:cli"
