@@ -20,7 +20,7 @@ dev = [
 ]
 
 [project.scripts]
-# actions = "dev_tools.actions:cli"
+actions = "dev_tools.actions:cli"
 # delenv = "dev_tools.delenv:cli"
 # dev-tools = "dev_tools.dev-tools:cli"
 meeting = "dev_tools.meeting:cli"
