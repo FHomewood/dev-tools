@@ -1,10 +1,17 @@
-## [<!-- feature name-->](<!-- link to ticket -->)
-<!-- ticket summary -->
+## [{feature-name}]({link-to-ticket})
+{ticket-summary}
 
 ### Adds
-- 
-<!-- ### Changes -->
-<!-- ### Fixes -->
-<!-- ### Removes -->
-<!-- ### Security Updates -->
-<!-- ### Testing -->
+-
+<!-- 
+### Changes
+-
+### Fixes
+-
+### Removes
+-
+### Security Updates
+-
+### Testing
+-
+-->
