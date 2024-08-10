@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dev-tools"
-version = "0.1.0"
+version = "0.2.0"
 description = "A dot-files style repository for ease of development and automation of workflow."
 readme = "README.md"
 authors = [{ name = "Frankie Homewood", email = "F.Homewood@outlook.com" }]
