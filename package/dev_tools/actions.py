@@ -31,9 +31,19 @@ def close(close_pattern):
         actions_file_path = dev_tools_dir / 'dot-files'/ '.dtactions'
         actions_file = initialise_actions_file(actions_file_path)
         for action in actions_file['active']:
-            print(f'current_action={action}')
-        matches = [i for i in actions_file['active'] if re.search(close_pattern, i)]
-        print(f'{matches=}')
+            matches = [action_id for action_id in actions_file['active'] if re.search(close_pattern, action_id)]
+        if not matches:
+            return display('Could not match an action')
+        if len(matches) > 1:
+            display('The pattern matched multiple actions')
+            return [ display(f"{id+1:>5}: {action}") for id, action in enumerate(matches) ]
+        display(f'Closed {matches[0]}')
+        actions_file['closed'] += matches
+        actions_file['active'] = list(set(actions_file['active']).difference(set(matches)))
+        with open(actions_file_path, 'w') as file:
+            json.dump(actions_file, file, indent=2)
+        
+
         is_successful = True
     except Exception as e:
         display("There was a failure.", "cyan")
@@ -58,7 +68,7 @@ def actions():
         all_actions = get_all_actions(sub_files)
         actions_file['active'] = list(all_actions.difference(set(actions_file['closed'])))
         with open(actions_file_path, 'w') as file:
-            json.dump(actions_file, file)
+            json.dump(actions_file, file, indent=2)
         for action in actions_file.get('active', list()):
             display(action)
         is_successful = True
@@ -113,7 +123,7 @@ def get_actions(file):
         for action_line in actions.split('\n')
         if re.match('- (.+)', action_line)
         ]
-    actions = [f"{timestamp} | {action}" for action in actions]
+    actions = [f"{timestamp}_{action_id} | {action}" for action_id, action in enumerate(actions)]
     return actions
 
 
