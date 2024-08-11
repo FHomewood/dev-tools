@@ -26,7 +26,19 @@ def actions():
         if not actions_file_path.is_file():
             with open(actions_file_path, 'w') as file:
                 file.write('{}')
-        actions_file = json.load(actions_file_path)
+        with open(actions_file_path, 'r') as file:
+            actions_file = json.load(file)
+        if not hasattr(actions_file, 'closed'):
+            actions_file['closed'] = list()
+        if not hasattr(actions_file, 'active'):
+            actions_file['active'] = list()
+        sub_files = notes_dir.glob('**/*.md')
+        all_actions = pull_actions_from_files(sub_files)
+        print(list(all_actions))
+
+
+
+        print(actions_file)
         is_successful = True
     except Exception as e:
         display("There was a failure.", "cyan")
@@ -39,6 +51,12 @@ def actions():
             error_message = "An unknown error occurred"
         display(error_message, "cyan")
 
+def pull_actions_from_files(files):
+    for file in files:
+        yield get_actions(file)
+
+def get_actions(file):
+    return file.stem, 2
 
 def display(message, color="bright_cyan"):
     click.echo(click.style(message, fg=color))
