@@ -159,7 +159,7 @@ def new_kit():
         display("  - Extracting information from last meeting...")
         with open(most_recent_kit, "r") as file:
             data = "".join(file.readlines())
-        regex = "^(?:(?:.*\n)*)### Check-in\n((?:.*\n)*)\n## Goals\n((?:.*\n)*)\n## Actions\n(?:(?:.*\n)*)\n### Actions\n((?:.*\n*)*)"
+        regex = "^(?:(?:.*\n)*)### Check-in\n((?:.*\n)*)\n## Goals\n((?:.*\n)*)\n## Actions\n(?:(?:.*\n)*)\n### Actions\n((?:.*\n*)*)\n### Tags"
         match = re.match(regex, data)
 
         # Define values to replace
