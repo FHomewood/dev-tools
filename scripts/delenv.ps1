@@ -161,6 +161,12 @@ Parameter flags can be supplied with the command to adjust the script's behaviou
     break
 }
 
+
+### ~~~~ DEPRECATION ~~~~ ###
+Write-Warn "Deprecation Warning:"
+Write-Warn "delenv.ps1 is deprecated as of dev-tools v0.3.0"
+
+
 ### ~~~~ RUN ~~~~ ###
 switch ($true) {
     $Version { Write-Host $version_number }
