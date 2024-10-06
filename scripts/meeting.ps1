@@ -124,7 +124,7 @@ function New-KIT {
         # Find information from the most recent kit 
         # And extract it into the new one
         Write-Host "  - Extracting information from last meeting..." -ForegroundColor Cyan
-        $regex = "### Check-in`n((?:.*`n)*)`n## Goals`n((?:.*`n)*)`n## Actions`n(?:(?:.*`n)*)`n### Actions`n((?:.*`n*)*)"
+        $regex = "### Check-in`n((?:.*`n)*)`n## Goals`n((?:.*`n)*)`n## Actions`n(?:(?:.*`n)*)`n### Actions`n((?:.*`n*)*)`n### Tags"
         $data =  [string]::Join("`n", (Get-Content -Path $most_recent_kit.FullName))
         $match = $data | Select-String -Pattern $regex
 
