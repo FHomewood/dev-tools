@@ -351,7 +351,6 @@ def new_daily():
     shutil.rmtree(temp_dir)
     if is_successful:
         os.system(
-        # print(
             f'code "{today_dir.absolute()}" "{today_dir / date.strftime("%Y-%m-%d_%H-%M-%S - Daily Notes.md")}"'
         )
         display("Done!", "bright_green")
