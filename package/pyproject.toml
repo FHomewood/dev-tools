@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=67.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dev-tools"
+version = "0.3.0"
+description = "A dot-files style repository for ease of development and automation of workflow."
+readme = "README.md"
+authors = [{ name = "Frankie Homewood", email = "F.Homewood@outlook.com" }]
+license = { file = "LICENSE" }
+requires-python = ">=3.11"
+
+dependencies = [
+    'click'
+]
+
+[project.optional-dependencies]
+dev = [
+]
+
+[project.scripts]
+actions = "dev_tools.actions:cli"
+# delenv = "dev_tools.delenv:cli"
+# dev-tools = "dev_tools.dev-tools:cli"
+meeting = "dev_tools.meeting:cli"
+newenv = "dev_tools.newenv:cli"
+title = "dev_tools.title:cli"

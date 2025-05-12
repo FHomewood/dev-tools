@@ -124,7 +124,7 @@ function New-KIT {
         # Find information from the most recent kit 
         # And extract it into the new one
         Write-Host "  - Extracting information from last meeting..." -ForegroundColor Cyan
-        $regex = "### Check-in`n((?:.*`n)*)`n## Goals`n((?:.*`n)*)`n## Actions`n(?:(?:.*`n)*)`n### Actions`n((?:.*`n*)*)"
+        $regex = "### Check-in`n((?:.*`n)*)`n## Goals`n((?:.*`n)*)`n## Actions`n(?:(?:.*`n)*)`n### Actions`n((?:.*`n*)*)`n### Tags"
         $data =  [string]::Join("`n", (Get-Content -Path $most_recent_kit.FullName))
         $match = $data | Select-String -Pattern $regex
 
@@ -224,10 +224,10 @@ function New-Daily {
         $today_dir = $today_dir | Resolve-Path
 
 
-        # Copy kit notes into temp
+        # Copy daily notes into temp
         $null = Copy-Item "$devtools_dir/templates/daily_note/*" $temp_dir -Recurse
         
-        # # Define values to replace
+        # Define values to replace
         $placeholders = @(
             @{  Tag = '{{ TIME STAMP }}';    Inplace = "$($date.ToString("yyyy-MM-dd_hh-mm-ss"))";   },
             @{  Tag = '{{ LONG DATE }}';     Inplace = "$($date.ToString("dddd, d MMM yyyy"))";      }
