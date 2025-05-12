@@ -4,12 +4,43 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
-<!-- Added -->
-<!-- Changed -->
-<!-- Deprecated -->
-<!-- Fixed -->
-<!-- Removed -->
-<!-- Security Changes -->
+### Added
+
+### Changed
+
+### Deprecated
+
+### Fixed
+
+### Removed
+
+### Security Changes
+
+
+## [0.3.0] - 2025-05-12
+### Added
+- Pull request template.
+- Python `actions` cli command.
+- Python `meeting` cli keyword.
+- Python `newenv` cli command.
+- Python `title` cli command.
+- Python package architecture for future python scripting.
+- Replicated Daily meeting functionality to meeting script.
+- Replicated default meeting functionality to meeting script.
+- Replicated KIT meeting functionality to meeting script.
+- `title.py` command changes notes names according to the same rules as `title-notes.ps1`.
+
+### Changed
+- Cleans up some maintainance comments in `meeting.ps1`.
+- Python `title-notes` command renamed to `title` for compatibility.****
+
+### Deprecated
+- `delenv` command now displays deprecation warning.
+
+### Fixed
+- Missing `### Tags` identifier in the KIT extraction regex pattern.
+- Update name of the pull request template file.
+
 
 ## [0.2.0] - 2024-03-02
 ### Added
