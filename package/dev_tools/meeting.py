@@ -6,7 +6,7 @@ import click, shutil, os, re
 
 
 @click.command()
-@click.argument("template", type=click.Choice(NOTE_TEMPLATES), default="default")
+@click.argument("template", type=click.Choice(NOTE_TEMPLATES), default="note")
 def cli(template):
     try:
         display("~~~ Loading Notes ~~~", "green")
@@ -60,10 +60,11 @@ def new_kit():
     if not kit_dir.is_dir():
         os.makedirs(kit_dir)
 
-    # Show team member selection interface
-    display("Team Members:", "bright_yellow")
 
     team_members = list(kit_dir.iterdir())
+    
+    # Show team member selection interface
+    display("Team Members:", "bright_yellow")
     for id, team_member in enumerate(team_members):
         display(f"[{id}] - {team_member.name}", "bright_yellow")
     display(f"[N] + New Team Member", "bright_yellow")
