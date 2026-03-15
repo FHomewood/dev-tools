@@ -1,4 +1,4 @@
-# _Daily Notes_ <br/> {{ LONG DATE }}
+# *Daily Notes* <br/> {{ LONG DATE }}
 Document to record and reference notes for the day.
 
 

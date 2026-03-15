@@ -5,8 +5,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 ### Added
+- Meeting command now has generic `note` template.
 
 ### Changed
+- Refactored meeting command into smaller functions.
+- Meeting has switched tags for arguments:
+  - Tags `--daily` and `--kit` now arguments `daily` and `kit`.
+  - Command accepts values `note`, `meeting`.
+  - Command defaults to `note` not `meeting` template.
+- Note templates moved into `templates/note/`.
+- Templated headers use `*` instead of `_` for italicizing.
 
 ### Deprecated
 
