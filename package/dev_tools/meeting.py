@@ -46,12 +46,10 @@ def new_note():
     clone_dir_contents(from_dir=TEMP_DIR, to_dir=today_dir)
 
     progress("Opening notes")
-    most_recent_kit = list(
+    file_to_open = next(
         today_dir.glob(f"{CURRENT_DATETIME.strftime('%Y-%m-%d_%H-%M-%S')}*.md")
     )
-    most_recent_kit.sort()
-    most_recent_kit = most_recent_kit[-1]
-    os.system(f'{OPEN_CMD} "{today_dir.absolute()}" "{most_recent_kit.absolute()}"')
+    os.system(f'{OPEN_CMD} "{today_dir.absolute()}" "{file_to_open.absolute()}"')
     return True
 
 
