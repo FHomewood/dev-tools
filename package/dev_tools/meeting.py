@@ -148,6 +148,11 @@ def new_team_member(kit_dir, team_member=None):
 
     clone_dir_contents(from_dir=TEMP_DIR, to_dir=team_member)
 
+    progress("Initializing git repository")
+    from git import Repo
+
+    Repo.init(team_member)
+
     most_recent_kit = list(
         (kit_dir / team_member).glob("*")
     )  ## TODO: Change glob argument to only target KIT files
