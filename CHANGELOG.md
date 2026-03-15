@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 ### Added
 - Meeting command now has generic `note` template.
+- New team member directories initialize a local git repository.
 
 ### Changed
 - Refactored meeting command into smaller functions.
